@@ -8,7 +8,12 @@
                     <input type="text" class="form-control" name="name" placeholder="Nombre de dispositivo General" autofocus />
                 </div>
                 <div class="form-group">
-                    <input type="text" class="form-control" name="type" placeholder="Tipo de dispositivo" autofocus />
+                    <label for="type" class="black-text-label">Elige tipo de dispositivo</label>
+                    <select  id="type" name="type">
+                        {{#each gtypes}}
+                        <option  value="{{id}}">{{name}}</option>
+                        {{/each}}
+                    </select>
                 </div>
                 <div class="form-group">
                     <textarea type="text" class="form-control" rows="3" name="description" placeholder="Describir"></textarea>

@@ -5,20 +5,23 @@ const pool = require('./../database');
 const { route } = require('.');
 
 
-router.get('/add', (req, res) => {
-    res.render('admin/addg');
+router.get('/add', async (req, res) => {
+    const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
+    res.render('admin/addg', { gtypes });
 });
 
 router.post('/add', async (req, res) => {
     const { name, type, description, amount, ports } = req.body;
     const newGDevice = { name, type, description, amount, ports };
+    console.log(type);
+
     await pool.query('INSERT INTO GENERALDEVICE SET?', [newGDevice]);
     req.flash('success', 'DISPOSITIVO GUARDADO EXITOSAMENTE');
     res.redirect('/admin');
 });
 
 router.get('/', async (req, res) => {
-    const gDevices = await pool.query('SELECT * FROM GENERALDEVICE');
+    const gDevices = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type');
     console.log(gDevices);
     res.render('admin/listgDevices', { gDevices });
 });
@@ -33,7 +36,9 @@ router.get('/delete/:id', async (req, res) => {
 router.get('/edit/:id', async (req, res) => {
     const { id } = req.params;
     const gDevice = await pool.query('SELECT * FROM GENERALDEVICE WHERE ID=?', [id]);
-    res.render('admin/editgDevice', { gDevice: gDevice[0] });
+    const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
+  
+    res.render('admin/editgDevice', { gDevice: gDevice[0], gtypes });
 });
 
 router.get('/edit/', async (req, res) => {
@@ -50,7 +55,7 @@ router.get('/delete/', async (req, res) => {
 
 router.get('/gdetails/:id', async (req, res) => {
     const { id } = req.params;
-    const gDevice = await pool.query('SELECT * FROM GENERALDEVICE WHERE ID=?', [id]);
+    const gDevice = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.id=?', [id]);
     res.render('admin/gDeviceDetails', { gDevice: gDevice[0] });
 });
 
