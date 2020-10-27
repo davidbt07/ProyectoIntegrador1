@@ -1,0 +1,50 @@
+   
+<div class="sidebar">
+
+    <img />
+
+    {{#if admin}}
+    <h3>Admin</h3>
+
+
+    {{else if teacher}}
+    <h3>Profesor</h3>
+    {{else}}
+    <h3>Estudiante</h3>
+    {{/if}}
+
+<ul>
+
+    {{#if admin}}
+    <li><a href="/admin/add"><i></i>Registrar dispositivo</a></li>
+    <li><a href="/admin/add"><i></i>Editar dispositivo</a></li>
+    <li><a href="/admin/add"><i></i>Eliminar dispositivo</a></li>
+    <li><a href="/admin/add"><i></i>Gestionar PC's</a></li>
+    {{else if teacher}}
+    <li><a href="/admin/add"><i></i>Lista de pr&aacute;cticas</a></li>
+    <li><a href="/admin/add"><i></i>Realizar pr&aacute;cticas</a></li>
+    <li><a href="/admin/add"><i></i>Editar pr&aacute;cticas</a></li>
+    <li><a href="/admin/add"><i></i>Reservar pr&aacute;cticas</a></li>
+
+    {{else}}
+    <li><a href="/admin/"><i></i>Dispositivos</a></li>
+    <li><a href="/admin/add"><i></i>Registrar dispositivo</a></li>
+    <li><a href="/admin/edit"><i></i>Editar dispositivo</a></li>
+    <li><a href="/admin/delete"><i></i>Eliminar dispositivo</a></li>
+    <li><a href="/admin/add"><i></i>Gestionar PC's</a></li>
+
+    <!--<li><a href="/deviceg/add"><i></i>Lista de pr&aacute;cticas</a></li>
+    <li><a href="/deviceg/add"><i></i>Realizar pr&aacute;cticas</a></li>
+    <li><a href="/deviceg/add"><i></i>Editar pr&aacute;cticas</a></li>
+    <li><a href="/deviceg/add"><i></i>Reservar pr&aacute;cticas</a></li>-->
+    {{/if}}
+
+</ul>
+
+    <button class="closesession btn btn-dark" href="/deviceg/add">Cerrar Sesi&oacute;n</button>
+
+
+
+</div>
+ 
+

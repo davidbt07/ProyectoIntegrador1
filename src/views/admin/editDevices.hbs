@@ -1,0 +1,56 @@
+<div class="container p-4">
+    <div class="row">
+        <div class="col-md-4 mx-auto">
+            <div class="card">
+               
+
+                <div class="card-body">
+                    <form action="/admin/edit/" method="post">
+
+                        <div class="form-group">
+
+                            <input type="radio" id="male" name="gender" value="male">
+                            <label class="black-text-label" for="male">General</label>
+                            <input type="radio" id="female" name="gender" value="female">
+                            <label class="black-text-label" for="female">Espec&iacute;fico</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="black-text-label" for="cars">Elige tipo de dispositivo</label>
+                            <select name="cars" id="cars">
+                                <option value="volvo">Switche l3</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="black-text-label" for="cars">Elige dispositivo</label>
+                            <select name="cars" id="cars">
+                                <option value="volvo">MikroTik</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <input type="text" value="{{gDevice.name}}" class="form-control" name="name" placeholder="Nombre de dispositivo General" autofocus />
+                        </div>
+                        <div class="form-group">
+                            <input type="text" value="{{gDevice.type}}" class="form-control" name="type" placeholder="Tipo de dispositivo" autofocus />
+                        </div>
+                        <div class="form-group">
+                            <textarea type="text" class="form-control" rows="3" name="description" placeholder="Describir">{{gDevice.description}}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" value="{{gDevice.amount}}" class="form-control" name="amount" placeholder="Cantidad de dispositivos" />
+                        </div>
+                        <div class="form-group">
+                            <input type="number" value="{{gDevice.ports}}" class="form-control" name="ports" placeholder="Cantidad de puertos" />
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-success btn-block">Editar</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

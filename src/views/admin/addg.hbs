@@ -1,0 +1,31 @@
+<div class="container p-4">
+  <div class="row">
+    <div class="col-md-4 mx-auto">
+      <div class="card">
+        <div class="card-body">
+            <form action="/admin/add" method="post">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="name" placeholder="Nombre de dispositivo General" autofocus />
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="type" placeholder="Tipo de dispositivo" autofocus />
+                </div>
+                <div class="form-group">
+                    <textarea type="text" class="form-control" rows="3" name="description" placeholder="Describir"></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control" name="amount" placeholder="Cantidad de dispositivos" />
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control" name="ports" placeholder="Cantidad de puertos" />
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-success btn-block">Guardar</button>
+                </div>
+
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -14,7 +14,7 @@ router.post('/add', async (req, res) => {
     const newGDevice = { name, type, description, amount, ports };
     await pool.query('INSERT INTO GENERALDEVICE SET?', [newGDevice]);
     req.flash('success', 'DISPOSITIVO GUARDADO EXITOSAMENTE');
-    res.redirect('/manager');
+    res.redirect('/admin');
 });
 
 router.get('/', async (req, res) => {
