@@ -42,9 +42,9 @@ router.get('/edit/:id', async (req, res) => {
 });
 
 router.get('/edit/', async (req, res) => {
+    const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
 
-
-    res.render('admin/editDevices');
+    res.render('admin/editDevices', { gtypes});
 });
 
 router.get('/delete/', async (req, res) => {
@@ -69,5 +69,18 @@ router.post('/edit/:id', async (req, res) => {
     res.redirect('/admin');
 
 });
+
+router.get('/gdevicesfortype/:typ', async  (req, res) => {
+    const { typ } = req.params;
+    const gDevices = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.type=?', [typ]);
+    res.json(gDevices);
+});
+router.get('/gdevice/:gdevices', async (req, res) => {
+    const { gdevices } = req.params;
+    const gDevice = await pool.query('SELECT * FROM GENERALDEVICE WHERE ID=?', [gdevices]);
+    res.json(gDevice);
+});
+
+
 
 module.exports = router;
