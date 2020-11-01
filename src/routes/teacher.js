@@ -29,8 +29,16 @@ router.get('/practice/add', (req, res) => {
 });
 
 router.post('/practice/add/next', async(req, res) => {
+    let pods;
+    if(req.body.pods === 'on'){
+         pods = true;
+    }else{
+         pods = false;
+    }
+    await pool.query('INSERT INTO practice(name, description,pods)VALUES(?,?,?)',[req.body.name,req.body.description, pods]);
+    console.log(req.body);
     const { name } = req.body;
-    const deviceG = await pool.query('SELECT * FROM GENERALDEVICE');
+    const deviceG = await pool.query('SELECT * FROM GENERALTYPE');
     console.log(deviceG);
     res.render('teacher/nextCreatePractice', {name, deviceG});
 });
