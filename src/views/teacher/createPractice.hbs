@@ -1,0 +1,32 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                    <h2>Profesor{{teacher.fullname}}</h2>
+                    </br>
+                    <h4>Crear Pr&aacute;ctica</h4>
+                </div>
+                <div>
+                    <br>
+                    <form action="/teacher/practice/add/next" method="post">
+                        <div class="form-group">
+                            <p style="color: white;"><em> Nombre Pr&aacute;ctica: </em></p>
+                            <input type="text" class="form-control" name="name"
+                                placeholder="Nombre práctica" autofocus />
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em> Descripción Pr&aacute;ctica: </em></p>
+                            <textarea class="form-control" placeholder="Descripción de la Práctica" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-danger" type="reset">Borrar todo</button>
+                            <button class="btn btn-success">Siguiente</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -46,7 +46,7 @@ app.use((req, res, next) => {
 app.use(require('./routes'));
 app.use(require('./routes/authentication'));
 app.use('/admin', require('./routes/admin'));
-
+app.use('/teacher', require('./routes/teacher'));
 //Public
 app.use(express.static(path.join(__dirname, 'public')));
 //Starting the server

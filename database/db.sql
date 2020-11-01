@@ -40,3 +40,26 @@ type INT(4) NOT NULL,
    INSERT INTO GENERALTYPE VALUES (4,"ROUTER");
     INSERT INTO GENERALTYPE VALUES (5,"PC");
        INSERT INTO GENERALTYPE VALUES (6,"PC2");
+
+
+DROP TABLE RESERVEG;
+DROP TABLE PRACTICE;
+
+CREATE TABLE RESERVEG(
+   id  INT(10)PRIMARY KEY AUTO_INCREMENT,
+   id_practice INT(10) NOT NULL,
+   course VARCHAR(20) NOT NULL,
+   day DATE NOT NULL,
+   startHour TIME NOT NULL,
+   endHour TIME NOT NULL,
+   FOREIGN KEY (id_practice) REFERENCES PRACTICE(id));
+
+CREATE TABLE PRACTICE(
+  id INT(10) PRIMARY KEY AUTO_INCREMENT,
+   name VARCHAR(100) NOT NULL,
+   description VARCHAR(400) NOT NULL,
+   pods boolean not null
+);
+
+INSERT INTO RESERVEG(id_practice, course, day, startHour, endHour) values(1, 'COM1', '2020/10/25', 12-00-00, 02-00-00);
+INSERT INTO PRACTICE(name, description, pods) values('vlans', 'Uso de vlans', true);

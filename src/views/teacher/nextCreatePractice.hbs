@@ -1,0 +1,119 @@
+<div class="container">
+    <div class="row">
+        <div class="md-12 mx-auto">
+            <div class="justify-content-center">
+                <div class="presentation">
+                    <h2>Profesor{{teacher.fullname}}</h2>
+                    </br>
+                    <h4>Crear Pr&aacute;ctica: {{name}}</h4>
+                </div>
+                <div class="">
+                    <br>
+                    <form action="/practice/addno es clara aun" method="post">
+                        <div class="form-group">
+                            <p style="color: white;"><em> Tipo Dispositivo: </em></p>
+                            <select name="tipo" class="form-control mt-2 bg-primary">
+                                <option value="null">Seleccione Tipo</option>
+                                {{#each deviceG}} 
+                                    <option value="value1">{{name}}</option> 
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em> Nombre Dispositivo: </em></p>
+                            <input type="text" class="form-control mt-2" name="name" placeholder="Nombre Dispositivo" />
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-outline-primary mt-3 ml-2">Añadir Dispositivo</button>
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;" class="text-center"><em> Pods?: </em></p>
+                            <input type="checkbox" name="pods" class="form-control">
+                        </div>
+                        <div class="form-group btn-group">
+                            <button class="btn btn-outline-danger" type="reset">Borrar todo</button>
+                            <button class="btn btn-outline-success">Crear</button>
+                        </div>
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
+            <table class="display table-hover table-responsive" id="table_id">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Dispositivo</th>
+                        <th>Tipo</th>
+                        <th>N&uacute;mero puertos</th>
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+                <tbody>
+
+
+                    {{#each deviceG}}
+
+
+                    <tr>
+
+                        <td>{{id}}</td>
+                        <td>{{name}}</td>
+                        <td>{{type}}</td>
+                        <td>{{ports}}</td>
+
+                        <td>
+
+                            <a href="/teacher/delete/{{id}}" title="Eliminar" class="text-decoration-none">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash"
+                                    fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                    <path fill-rule="evenodd"
+                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                </svg>
+                            </a>
+
+                        </td>
+                    </tr>
+
+                    {{/each}}
+
+                </tbody>
+
+
+                <tfoot>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Dispositivo</th>
+                        <th>Tipo</th>
+                        <TH>Hora inicio</TH>
+                        <th>N&uacute;mero puertos</th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+        </div>
+
+
+
+
+
+    </div>
+
+
+</div>

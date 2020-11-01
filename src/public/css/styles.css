@@ -16,6 +16,13 @@ table{
     background-color: white;
 }
 
+.presentation {
+    color: white;
+    margin-top: 2%;
+    padding: 4%;
+    text-align: center;
+}
+
 .wrapper {
     display: flex;
     position: relative;
