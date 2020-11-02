@@ -1,38 +1,68 @@
-<div class="container p-4">
+<div class="container">
     <div class="row">
-        <div class="col-md-4 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <form action="/admin/edit/{{gDevice.id}}" method="post">
-
-                        <div class="form-group">
-                            <input type="text" value="{{gDevice.name}}" class="form-control"  name="name" placeholder="Nombre de dispositivo General" autofocus />
-                        </div>
-                        <div class="form-group">
-                            <label for="type" class="black-text-label">Elige tipo de dispositivo</label>
-                            <select id="type" name="type">
-                                {{#each gtypes}}
-                                <option value="{{id}}">{{name}}</option>
-                                {{/each}}
-                            </select>
-
-                        </div>
-                        <div class="form-group">
-                            <textarea type="text" class="form-control" rows="3" name="description" placeholder="Describir">{{gDevice.description}}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <input type="number" value="{{gDevice.amount}}" class="form-control" name="amount" placeholder="Cantidad de dispositivos" />
-                        </div>
-                        <div class="form-group">
-                            <input type="number" value="{{gDevice.ports}}" class="form-control" name="ports" placeholder="Cantidad de puertos" />
-                        </div>
-                        <div class="form-group">
-                            <button class="btn btn-success btn-block">Editar</button>
-                        </div>
-
-                    </form>
+        <div class="col-md-12 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                    <h2>ADMIN{{admin.fullname}}</h2>
+                    </br>
+                    <h5>EDITAR DISPOSITIVO</h5>
                 </div>
             </div>
         </div>
+
+    </div>
+</div>
+<div class="container p-4">
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 col-xl-5 mx-auto">
+
+        <form action="/admin/edit/{{gDevice.id}}" method="post">
+
+
+            <div class="form-group">
+                <div class="form-inline">
+                    <label for="name">Nombre dispositivo&nbsp;&nbsp;</label>
+                    <input type="text" value="{{gDevice.name}}" class="form-control" name="name" id="name" placeholder="Nombre" autofocus />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="type">Elige tipo de dispositivo</label>
+                <select id="type" name="type">
+                  
+                    {{#each gtypes}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/each}}
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+                <div class="form-inline">
+                    <label for="amount">N&uacute;mero de dispositivos:&nbsp;&nbsp;</label>
+                    <input type="number" value="{{gDevice.amount}}" class="form-control" name="amount" id="amount" placeholder="Selecci&oacute;n n&uacute;mero" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-inline">
+                    <label for="ports">N&uacute;mero de puertos:&nbsp;&nbsp;</label>
+                    <input type="number" value="{{gDevice.ports}}" class="form-control" name="ports" id="ports" placeholder="Selecci&oacute;n n&uacute;mero" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <textarea type="text" class="form-control" rows="3" name="description" id="description" placeholder="Descripci&oacute;n dispositivo">{{gDevice.description}}</textarea>
+            </div>
+
+
+
+
+
+            <div class="form-group">
+                <button class="btn btn-success btn-block">Editar</button>
+            </div>
+
+        </form>
     </div>
 </div>

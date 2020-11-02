@@ -1,72 +1,101 @@
-<div class="container p-4">
+<div class="container">
     <div class="row">
-        <div class="col-md-4 mx-auto">
-            <div class="card">
-
-
-                <div class="card-body">
-                    <form name="formulario1" id="formulario" method="post">
-
-                        <div class="form-group">
-
-                            <input type="radio" id="male" name="gender" value="male">
-                            <label class="black-text-label" for="male">General</label>
-                            <input type="radio" id="female" name="gender" value="female">
-                            <label class="black-text-label" for="female">Espec&iacute;fico</label>
-                        </div>
-                        <div class="form-group">
-                            <label for="type" class="black-text-label">Elige tipo de dispositivo</label>
-                            <select id="type" name="type" onchange="selecttype()">
-                                {{#each gtypes}}
-                                <option value="{{id}}">{{name}}</option>
-                                {{/each}}
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="black-text-label" for="gdevices">Elige dispositivo</label>
-                            <select name="gdevices" id="gdevices" onchange="selectdevice()">
-                               
-                            </select>
-                        </div>
-
-
-                        <div class="form-group">
-                            <input type="text" value="{{gDevice.name}}" class="form-control" name="name" id="name" placeholder="Nombre de dispositivo General" autofocus />
-                        </div>
-                        <div class="form-group">
-                            <label for="type" class="black-text-label">Elige tipo de dispositivo</label>
-                            <select id="type" name="type">
-                                {{#each gtypes}}
-                                <option value="{{id}}">{{name}}</option>
-                                {{/each}}
-                            </select>
-
-                        </div>
-                        <div class="form-group">
-                            <textarea type="text" class="form-control" rows="3" name="description" id="description" placeholder="Describir">{{gDevice.description}}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <input type="number" value="{{gDevice.amount}}" class="form-control" name="amount" id="amount" placeholder="Cantidad de dispositivos" />
-                        </div>
-                        <div class="form-group">
-                            <input type="number" value="{{gDevice.ports}}" class="form-control" name="ports" id="ports" placeholder="Cantidad de puertos" />
-                        </div>
-                        <div class="form-group">
-                            <button onclick="get_action()" class="btn btn-success btn-block">Editar</button>
-                        </div>
-
-                    </form>
+        <div class="col-md-12 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                    <h2>ADMIN{{admin.fullname}}</h2>
+                    </br>
+                    <h5>EDITAR DISPOSITIVO</h5>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
+<div class="container p-4">
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 col-xl-5 mx-auto">
+
+
+        <form name="formulario1" id="formulario" method="post">
+
+            <div class="form-group">
+
+                <input type="radio" id="male" name="gender" value="male">
+                <label for="male">General</label>
+                <input type="radio" id="female" name="gender" value="female">
+                <label for="female">Espec&iacute;fico</label>
+            </div>
+            <div class="form-group">
+                <label for="types">Elige tipo de dispositivo</label>
+                <select id="types" name="types" onchange="selecttype()">
+                    <option value="">Selecci&oacute;n tipo</option>
+                    {{#each gtypes}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="gdevices">Elige dispositivo</label>
+                <select name="gdevices" id="gdevices" onchange="selectdevice()">
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="text" value="" name="id" id="id" hidden />
+            </div>
+
+            <div class="form-group">
+                <div class="form-inline">
+                    <label for="name">Nombre dispositivo&nbsp;&nbsp;</label>
+                    <input type="text" value="" class="form-control" name="name" id="name" placeholder="Nombre" autofocus />
+                </div>
+                </div>
+                <div class="form-group">
+                    <label for="type">Elige tipo de dispositivo</label>
+
+                    <select id="type" name="type">
+                        <option value="">Selecci&oacute;n tipo</option>
+                        {{#each gtypes}}
+                        <option value="{{id}}">{{name}}</option>
+                        {{/each}}
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+                    <div class="form-inline">
+                        <label for="amount">N&uacute;mero de dispositivos:&nbsp;&nbsp;</label>
+                        <input type="number" class="form-control" name="amount" id="amount" placeholder="Selecci&oacute;n n&uacute;mero" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-inline">
+                        <label for="ports">N&uacute;mero de puertos:&nbsp;&nbsp;</label>
+                        <input type="number" class="form-control" name="ports" id="ports" placeholder="Selecci&oacute;n n&uacute;mero" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <textarea type="text" class="form-control" rows="3" name="description" id="description" placeholder="Descripci&oacute;n dispositivo"></textarea>
+                </div>
+                <div class="form-group">
+                    <button onclick="get_action()" class="btn btn-success btn-block">Editar</button>
+                </div>
+</form>
+    </div>
+</div>
+        
 <script>
 
-    function get_action(){
-        document.getElementById("formulario").action = "success.php"; // Setting form action to "success.php" page
+    function get_action() {
+      
+        const typ = $("#id").val();
+
+        document.getElementById("formulario").action = "/admin/edit/"+typ; // Setting form action to "success.php" page
         document.getElementById("formulario").submit(); // Submitting form
 
 
@@ -74,7 +103,7 @@
 
 
   function selecttype() {
-      const typ = $("#type").val();
+      const typ = $("#types").val();
           $.ajax({
               url: 'gdevicesfortype/'+typ,
               success: function (gDevices) {
@@ -110,15 +139,18 @@
             success: function (gDevice) {
                 const device = gDevice[0];
                 $("#name").val(device.name);
-            
+                $("#id").val(device.id);
                 $("#description").val(device.description);
                 $("#amount").val(device.amount);
                 $("#ports").val(device.ports);
-               
 
             }
 
         });
+
+
+    
+
 
     }
 

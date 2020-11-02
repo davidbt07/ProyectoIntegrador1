@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\database",
+    "\\src",
+    "\\src\\routes",
+    "\\src\\views",
+    "\\src\\views\\admin",
+    "\\src\\views\\auth",
+    "\\src\\views\\partials",
+    "\\src\\views\\teacher"
+  ],
+  "SelectedNode": "\\src\\routes\\admin.js",
+  "PreviewInSolutionExplorer": false
+}

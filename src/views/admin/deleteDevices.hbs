@@ -1,42 +1,124 @@
-<div class="container p-4">
+<div class="container">
     <div class="row">
-        <div class="col-md-4 mx-auto">
-            <div class="card">
-
-
-                <div class="card-body">
-                    <form action="/admin/edit/" method="post">
-
-                        <div class="form-group">
-
-                            <input type="radio" id="male" name="gender" value="male">
-                            <label class="black-text-label" for="male">General</label>
-                            <input type="radio" id="female" name="gender" value="female">
-                            <label class="black-text-label" for="female">Espec&iacute;fico</label>
-                        </div>
-                        <div class="form-group">
-                            <label class="black-text-label" for="cars">Elige tipo de dispositivo</label>
-                            <select name="cars" id="cars">
-                                <option value="volvo">Switche l3</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="black-text-label" for="cars">Elige dispositivo</label>
-                            <select name="cars" id="cars">
-                                <option value="volvo">MikroTik</option>
-                            </select>
-                        </div>
-
-
-                      
-                        <div class="form-group">
-                            <button class="btn btn-danger btn-block">Eliminar</button>
-                        </div>
-
-                    </form>
+        <div class="col-md-12 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                    <h2>ADMIN{{admin.fullname}}</h2>
+                    </br>
+                    <h5>ELIMINAR DISPOSITIVO</h5>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
+
+<div class="container p-4">
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 col-xl-5 mx-auto">
+
+        <form name="formulario1" id="formulario" method="get">
+
+            <div class="form-group">
+
+                <input type="radio" id="male" name="gender" value="male">
+                <label for="male">General</label>
+                <input type="radio" id="female" name="gender" value="female">
+                <label for="female">Espec&iacute;fico</label>
+            </div>
+            <div class="form-group">
+                <label for="types">Elige tipo de dispositivo</label>
+                <select id="types" name="types" onchange="selecttype()">
+                    <option value="">Seleccione</option>
+                    {{#each gtypes}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="gdevices">Elige dispositivo</label>
+                <select name="gdevices" id="gdevices" onchange="selectdevice()">
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="text" value="" name="id" id="id" hidden />
+            </div>
+
+            <div class="form-group">
+                <button onclick="get_action()" class="btn btn-danger btn-block">Eliminar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+       
+
+<script>
+
+    function get_action() {
+
+        const typ = $("#id").val();
+
+        document.getElementById("formulario").action = "/admin/delete/" + typ;
+        document.getElementById("formulario").submit();
+
+
+    }
+
+
+    function selecttype() {
+        const typ = $("#types").val();
+        $.ajax({
+            url: 'gdevicesfortype/' + typ,
+            success: function (gDevices) {
+
+                $('#gdevices').html('');
+                $('#gdevices').append(`<option>
+                                       Seleccione
+                                  </option>`);
+
+
+                gDevices.forEach(gdevice => {
+
+                    $('#gdevices').append(`<option value="${gdevice.id}">
+                                       ${gdevice.name}
+                                  </option>`);
+
+                });
+
+
+            }
+
+        });
+
+    }
+
+
+
+    function selectdevice() {
+        const device = $("#gdevices").val();
+        $.ajax({
+            url: 'gdevice/' + device,
+            success: function (gDevice) {
+                const device = gDevice[0];
+                $("#name").val(device.name);
+                $("#id").val(device.id);
+
+
+            }
+
+        });
+
+
+
+
+
+    }
+
+
+
+
+
+</script>
