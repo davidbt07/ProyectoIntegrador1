@@ -8,14 +8,15 @@ router.get('/', (req, res) => {
 router.post('/login', async (req, res) => {
     const { username } = req.body;
     const { password } = req.body;
-    const body = { username, password };
-    console.log(username);
-    console.log(password);
+   
     const axios = require('axios')
 
     axios
         .post('https://lis.udea.edu.co/api/ldap/login', {
-            body,
+            
+                'username': username,
+                'password': password
+            
         })
         .then((res) => {
             console.log(`statusCode: ${res.statusCode}`);

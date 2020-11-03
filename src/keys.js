@@ -3,7 +3,7 @@ module.exports = {
     database: {
         host: 'localhost',
         user: 'root',
-        password: 'oUdGmnrw?6(O',
+        password: 'root',
         database: 'virtual_lab'
     }
 
