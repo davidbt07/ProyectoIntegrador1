@@ -52,6 +52,7 @@ CREATE TABLE RESERVEG(
    day DATE NOT NULL,
    startHour TIME NOT NULL,
    endHour TIME NOT NULL,
+   podsAmount INT(2) NOT NULL,
    FOREIGN KEY (id_practice) REFERENCES PRACTICE(id));
 
 CREATE TABLE RESERVEBYDEVICE(
@@ -70,6 +71,6 @@ INSERT INTO GENERALTYPE(name) VALUES ("PC");
 INSERT INTO GENERALDEVICE(id,name,type,description,amount,ports) VALUES (1,'Microtik',1,'Switche de nivel 3',10,20);
 
 INSERT INTO PRACTICE(name, description, pods) values('vlans', 'Uso de vlans', true);
-INSERT INTO RESERVEG(id_practice, course, day, startHour, endHour) values(1, 'COM1', '2020/10/25', 12-00-00, 02-00-00);
+INSERT INTO RESERVEG(id_practice, course, day, startHour, endHour, podsAmount) values(1, 'COM1', '2020/10/25', 12-00-00, 02-00-00, 4);
 INSERT INTO SPECIFICDEVICE(id, state, type)VALUES(1,'DISPONIBLE',1);
 INSERT INTO RESERVEBYDEVICE(reserve, device)VALUES(1,1);
