@@ -31,7 +31,6 @@ router.get('/practice/list/edit/:id', async (req, res) => {
 });
 router.post('/practice/list/edit/:id', async (req, res) => {
     const { id } = req.params;
-    console.log(req.params);
     const { name, day, startHour, endHour, course, podsAmount } = req.body;
     const newReserve = {
         id_practice: name,
@@ -41,19 +40,20 @@ router.post('/practice/list/edit/:id', async (req, res) => {
         course,
         podsAmount
     };
-    console.log('id:',id)
-    const rese = await pool.query('SELECT * FROM RESERVEG WHERE id = ?', [id]);
-    console.log(rese[0])
-    console.log(newReserve);
     await pool.query('UPDATE RESERVEG set ? WHERE id = ?',[newReserve, id]);
-    const rese2 = await pool.query('SELECT * FROM RESERVEG WHERE id = ?', [id]);
-    console.log(rese2[0])
+    req.flash('success', 'PRÁCTICA ACTUALIZADA EXITOSAMENTE');
     res.redirect('/teacher/practice/list');
 });
 
 router.get('/practice/add', (req, res) => {
-    console.log(req.body);
     res.render('teacher/createPractice');
+});
+
+router.get('/practice/remove/:id', async (req, res) => {
+    const { id } = req.params;
+    await pool.query('DELETE FROM RESERVEG WHERE id = ?', [id]);
+    req.flash('success', 'PRACTICA ELIMINADA EXITOSAMENTE');
+    res.redirect('/teacher/practice/list');
 });
 
 router.post('/practice/add/next', async(req, res) => {
