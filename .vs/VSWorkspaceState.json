@@ -1,15 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\database",
     "\\src",
-    "\\src\\routes",
+    "\\src\\public",
+    "\\src\\public\\css",
     "\\src\\views",
     "\\src\\views\\admin",
     "\\src\\views\\auth",
+    "\\src\\views\\layouts",
     "\\src\\views\\partials",
     "\\src\\views\\teacher"
   ],
-  "SelectedNode": "\\src\\routes\\admin.js",
+  "SelectedNode": "\\src\\views\\admin\\editDevices.hbs",
   "PreviewInSolutionExplorer": false
 }

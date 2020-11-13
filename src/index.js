@@ -39,6 +39,7 @@ app.use(express.json());
 
 app.use((req, res, next) => {
     app.locals.success = req.flash('success');
+    app.locals.danger = req.flash('danger');
     next();
 });
 

@@ -17,15 +17,18 @@
 <div class="container p-4">
     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 col-xl-5 mx-auto">
 
-        <form name="formulario1" id="formulario" method="get">
 
-            <div class="form-group">
+        <div class="form-group">
 
-                <input type="radio" id="male" name="gender" value="male">
-                <label for="male">General</label>
-                <input type="radio" id="female" name="gender" value="female">
-                <label for="female">Espec&iacute;fico</label>
-            </div>
+            <input type="radio" id="general" name="dtype" onchange="hideSpecific(this)" value="general" checked>
+            <label for="general">General</label>
+            <input type="radio" id="specific" name="dtype" onchange="hideGeneral(this)" value="específico">
+            <label for="specific">Espec&iacute;fico</label>
+        </div>
+
+        <form name="generalForm" id="generalForm" method="get">
+
+
             <div class="form-group">
                 <label for="types">Elige tipo de dispositivo</label>
                 <select id="types" name="types" onchange="selecttype()">
@@ -47,22 +50,62 @@
             </div>
 
             <div class="form-group">
-                <button onclick="get_action()" class="btn btn-danger btn-block">Eliminar</button>
+                <button onclick="get_actionG()" class="btn btn-danger btn-block">Eliminar</button>
             </div>
 
         </form>
+        <form name="specificForm" id="specificForm" method="get">
+
+
+            <div class="form-group">
+                <label for="typess">Elige tipo de dispositivo</label>
+                <select id="typess" name="typess" onchange="selecttypes()">
+                    <option value="">Selecci&oacute;n tipo</option>
+                    {{#each gtypes}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="gdevicess">Elige dispositivo</label>
+                <select name="gdevicess" id="gdevicess" onchange="selectdevices()">
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sdevices">Elige identificador</label>
+                <select name="sdevices" id="sdevices">
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <button onclick="get_actionS()" class="btn btn-danger btn-block">Eliminar</button>
+            </div>
+        </form>
+
+
     </div>
 </div>
        
 
 <script>
-
-    function get_action() {
+    function get_actionG() {
 
         const typ = $("#id").val();
 
-        document.getElementById("formulario").action = "/admin/delete/" + typ;
-        document.getElementById("formulario").submit();
+        document.getElementById("generalForm").action = "/admin/delete/" + typ; // Setting form action to "success.php" page
+        document.getElementById("generalForm").submit(); // Submitting form
+
+    }
+
+    function get_actionS() {
+
+        const typ = $("#sdevices").val();
+
+        document.getElementById("specificForm").action = "/admin/deletes/" + typ; // Setting form action to "success.php" page
+        document.getElementById("specificForm").submit(); // Submitting form
 
 
     }
@@ -95,6 +138,60 @@
 
     }
 
+    function selectdevices() {
+        const sdevice = $("#gdevicess").val();
+        $.ajax({
+            url: 'sdevicedevices/' + sdevice,
+            success: function (sdevices) {
+
+                $('#sdevices').html('');
+                $('#sdevices').append(`<option> 
+                                       Seleccione
+                                  </option>`);
+
+                sdevices.forEach(sdevice => {
+                    $('#sdevices').append(`<option value="${sdevice.id}"> 
+                                       ${sdevice.id} 
+                                  </option>`);
+                });
+            }
+
+        });
+
+
+
+
+
+
+
+    }
+
+    function selecttypes() {
+        const typ = $("#typess").val();
+        $.ajax({
+            url: 'gdevicesfortype/' + typ,
+            success: function (gDevices) {
+
+                $('#gdevicess').html('');
+                $('#gdevicess').append(`<option> 
+                                       Seleccione
+                                  </option>`);
+
+
+                gDevices.forEach(gdevice => {
+
+                    $('#gdevicess').append(`<option value="${gdevice.id}"> 
+                                       ${gdevice.name} 
+                                  </option>`);
+
+                });
+
+
+            }
+
+        });
+
+    }
 
 
     function selectdevice() {
@@ -118,6 +215,24 @@
     }
 
 
+
+    function hideGeneral(x) {
+        if (x.checked) {
+            document.getElementById("generalForm").style.display = "none";
+            document.getElementById("specificForm").style.display = "initial";
+        }
+    }
+
+    function hideSpecific(x) {
+        if (x.checked) {
+            document.getElementById("specificForm").style.display = "none";
+            document.getElementById("generalForm").style.display = "initial";
+        }
+    }
+    $(function () {
+        document.getElementById("specificForm").style.display = "none";
+        document.getElementById("generalForm").style.display = "initial";
+    });
 
 
 

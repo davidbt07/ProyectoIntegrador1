@@ -11,23 +11,14 @@ router.post('/login', async (req, res) => {
    
     const axios = require('axios')
 
-    axios
-        .post('https://lis.udea.edu.co/api/ldap/login', {
-            
-                'username': username,
-                'password': password
-            
-        })
-        .then((res) => {
-            console.log(`statusCode: ${res.statusCode}`);
-            console.log(res);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-
-
-
+    const a=await axios.post('https://lis.udea.edu.co/api/ldap/login', {
+            'username': username,
+        'password': password
+    }).catch(e => {
+        req.flash('danger', '¡USUARIO y/o CONSTRASEÑA INVÁLIDOS!');
+      
+    });
+    console.log(a.data);
 });
 
 module.exports = router;

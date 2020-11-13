@@ -25,6 +25,7 @@ router.post('/add', async (req, res) => {
     }
 
     req.flash('success', 'DISPOSITIVO GUARDADO EXITOSAMENTE');
+   
     res.redirect('/admin');
 });
 
@@ -38,7 +39,10 @@ router.get('/', async (req, res) => {
 
 router.get('/delete/:id', async (req, res) => {
     const { id } = req.params;
-    const a = await pool.query('DELETE FROM GENERALDEVICE WHERE ID=?', [id]);
+    const a = await pool.query('DELETE FROM GENERALDEVICE WHERE ID=?', [id]).catch(e => {
+        req.flash('danger', 'ELIMINE PRIMERO LOS DISPOSITIVOS ESPECIFICOS');
+        res.redirect('/admin');
+    });;
    
     req.flash('success', 'DISPOSITIVO ELIMINADO EXITOSAMENTE');
     res.redirect('/admin');
@@ -106,6 +110,12 @@ router.get('/gdevice/:gdevices', async (req, res) => {
     res.json(gDevice);
 });
 
+router.get('/sdevicedevices/:sdevice', async (req, res) => {
+    const { sdevice } = req.params;
+    const sdevices = await pool.query('SELECT * FROM GENERALDEVICE g, SPECIFICDEVICE c WHERE c.type=g.id and c.type=?', [sdevice]);
+    res.json(sdevices);
+});
+
 
 router.get('/edits/:id', async (req, res) => {
     const { id } = req.params;
@@ -124,6 +134,20 @@ router.post('/edits/:id', async (req, res) => {
     await pool.query('UPDATE SPECIFICDEVICE SET ? WHERE id=? ', [updatedgDevice, id]);
     req.flash('success', 'DISPOSITIVO ACTUALIZADO EXITOSAMENTE');
     res.redirect('/admin/gdetails/'+type);
+
+});
+
+
+router.post('/editss/:id', async (req, res) => {
+    const { sdevices } = req.body;
+    const { states } = req.body;
+    const { gdevicess } = req.body;
+    const state = states;
+    const updatedgDevice = { state };
+    await pool.query('UPDATE SPECIFICDEVICE SET ? WHERE id=? ', [updatedgDevice, sdevices]);
+    req.flash('success', 'DISPOSITIVO ACTUALIZADO EXITOSAMENTE');
+    res.redirect('/admin/gdetails/' + gdevicess);
+ console.log(req.body);
 
 });
 
