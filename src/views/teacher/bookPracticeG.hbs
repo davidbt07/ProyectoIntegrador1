@@ -1,0 +1,57 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                    <h2>Profesor{{teacher.fullname}}</h2>
+                    </br>
+                    <h4>Reservar pr&aacute;ctica</h4>
+                </div>
+                <div>
+                    <br>
+                    <form action="/teacher/practice/create" method="post">
+                        <div class="form-group">
+                            <p style="color: white;"><em> Nombre Pr&aacute;ctica: </em></p>
+                             <select name="name" class="form-control mt-2 bg-primary">
+                                <option >Seleccione pr&aacute;ctica</option>
+                                {{#each practices}} 
+                                    <option value="{{id}}">{{name}}</option> 
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em>Día: </em></p>
+                            <input type="date" name="day" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em>Hora inicio: </em></p>
+                            <input type="time" name="startHour" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em>Hora fin: </em></p>
+                            <input type="time" name="endHour" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em>Curso: </em></p>
+                            <select name="course" class="form-control mt-2 bg-primary">
+                                <option>Seleccione curso</option>
+                                {{#each courses}} 
+                                    <option value="{{id}}">{{name}}</option> 
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em>Cantidad de pods: </em></p>
+                            <input type="number" name="podsAmount" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-danger" type="reset">Borrar todo</button>
+                            <button class="btn btn-success">Reservar</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
