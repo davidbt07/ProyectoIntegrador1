@@ -1,3 +1,4 @@
+'use strict';
 const express = require('express');
 const router = express.Router();
 
@@ -89,8 +90,12 @@ router.post('/practice/add/next/confirm', (req, res) => {
 });
 
 router.get('/practice/add/cancel/:practice', async (req, res) => {
-    console.log(req.params);
+    const { practice } = req.params;
     console.log('cancelando');
+    await pool.query('DELETE FROM PRACTICE WHERE id = ?',[practice]).catch(err => {
+        console.log(err);
+        res.send('No se encuentra la práctica');
+    });
     res.redirect('/teacher/practice/list');
 });
 
@@ -124,17 +129,20 @@ router.get('/practice/add/gdevicesfortype/:typ', async (req, res) => {
 router.get('/practice/add/device/:practice/:device', async (req, res) => {
     const { practice, device } = req.params;
     console.log(req.params);
-    const d = await pool.query('SELECT * FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice WHERE dp.practice = ? AND dp.device = ?',[practice, device]);
-    console.log(d);
-    if (d[0] == null) {
-        await pool.query('INSERT INTO DEVICEBYPRACTICE(practice, device)VALUES(?,?)', [practice, device]);
-        const dev = await pool.query('SELECT * FROM GENERALDEVICE WHERE id = ?', [device]);
-        res.json(dev);
-    }else{
-        req.flash('success', 'El dispositivo ya existe');
+    await pool.query('INSERT INTO DEVICEBYPRACTICE(practice, device)VALUES(?,?)', [practice, device]).catch(err => {
+        console.log(err);
         res.json('');
-    }
-    
+    });
+    const dev = await pool.query('SELECT * FROM GENERALDEVICE WHERE id = ?', [device]);
+    res.json(dev);
+});
 
+router.get('/practice/add/delete/:practice/:device', async (req, res) => {
+    const { practice, device } = req.params;
+    console.log(req.params);
+    const dev = await pool.query('SELECT * FROM DEVICEBYPRACTICE WHERE practice = ? AND device = ?', [practice, device]);
+    console.log(dev);
+    await pool.query('DELETE FROM DEVICEBYPRACTICE WHERE practice = ? AND device = ?', [practice, device]);
+    res.json(dev);
 });
 module.exports = router;
