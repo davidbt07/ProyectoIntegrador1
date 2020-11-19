@@ -9,26 +9,30 @@
                 </div>
                 <div class="">
                     <br>
-                    <form action="/practice/addno es clara aun" method="post">
-                        <div class="form-group">
-                            <p style="color: white;"><em> Tipo Dispositivo: </em></p>
-                            <select name="tipo" class="form-control mt-2 bg-primary">
+                    <form action="/teacher/practice/add/next/confirm" method="post">
+                        <div class="form-group row">
+                            <p style="color: white;" for="tipo"><em> Tipo Dispositivo: </em></p>
+                            <select name="tipo" id="tipo" class="form-control mt-2 bg-primary" onchange="selecttype()">
                                 <option value="null">Seleccione Tipo</option>
-                                {{#each deviceG}} 
-                                    <option value="value1">{{name}}</option> 
+                                {{#each types}}
+                                <option value="{{id}}">{{name}}</option>
                                 {{/each}}
                             </select>
                         </div>
-                        <div class="form-group">
-                            <p style="color: white;"><em> Nombre Dispositivo: </em></p>
-                            <input type="text" class="form-control mt-2" name="name" placeholder="Nombre Dispositivo" />
+                        <div class="form-group row">
+                            <p style="color: white;" for="gdevices"><em> Nombre Dispositivo: </em></p>
+                            <select name="gdevices" id="gdevices" class="form-control mt-2 bg-primary">
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-outline-primary mt-3 ml-2">Añadir Dispositivo</button>
+                        <div class="form-group row justify-content-center" id="button2">
+                            <button id="addButton" type="button" class="btn btn-outline-primary">Añadir
+                                Dispositivo</button>
                         </div>
-                        <div class="form-group btn-group">
-                            <button class="btn btn-outline-danger" type="reset">Borrar todo</button>
-                            <button class="btn btn-outline-success">Crear</button>
+                        <div class="form-group row justify-content-center">
+                            <button class="btn btn-outline-warning" id="cancelButton" type="button">Cancelar</button>
+                        </div>
+                        <div class="form-group row justify-content-center">
+                            <button class="btn btn-outline-success" type="submit">Crear</button>
                         </div>
                     </form>
                 </div>
@@ -41,33 +45,80 @@
 
     <div class="row">
         <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
-            <table class="display table-hover table-responsive" id="table_id">
-
+            <table class="table table-sm table-dark table-hover" id="tableD">
                 <thead>
-
                     <tr>
-
-                        <th>ID</th>
-                        <th>Dispositivo</th>
-                        <th>Tipo</th>
-                        <th>N&uacute;mero puertos</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Dispositivo</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">N&uacute;mero puertos</th>
                         <th></th>
-
                     </tr>
-
                 </thead>
                 <tbody>
 
+                </tbody>
+            </table>
+        </div>
 
-                    {{#each deviceG}}
 
 
-                    <tr>
 
-                        <td>{{id}}</td>
-                        <td>{{name}}</td>
-                        <td>{{type}}</td>
-                        <td>{{ports}}</td>
+
+    </div>
+
+    <p id="myp"></p>
+</div>
+
+<script pract="{{practice.id}}">
+     
+    /*function get_action() {
+        const pr = document.currentScript.getAttribute('pract');
+        document.getElementById("cancelButton").setAttribute('href','/teacher/practice/add/cancel'+pr); // Setting form action to "success.php" page
+        //document.getElementById("formulario").submit(); // Submitting form
+    }*/
+
+    const pr = document.currentScript.getAttribute('pract');
+    var cancelButton = document.getElementById('cancelButton');
+    cancelButton.onclick = function() {
+        location.assign('/teacher/practice/add/cancel/'+pr);
+    }
+
+
+    function selecttype() {
+        const typ = $("#tipo").val();
+        $.ajax({
+            url: '/teacher/practice/add/gdevicesfortype/' + typ,
+            success: function (deviceG) {
+                $('#gdevices').html('');
+                $('#gdevices').append(`<option> 
+                                        Seleccione
+                                    </option>`);
+
+                deviceG.forEach(gdevice => {
+                    $('#gdevices').append(`<option value="${gdevice.id}"> 
+                                        ${gdevice.name} 
+                                    </option>`);
+                });
+            }
+        });
+    }
+
+    
+    const addButton = document.getElementById('addButton');
+    const practica = document.currentScript.getAttribute('pract');
+    addButton.addEventListener("click", () => {
+        const device = $('#gdevices').val();
+        $.ajax({
+            url: '/teacher/practice/add/device/' + practica + '/' + device,
+            success: function (dev) {
+                dev.forEach(d => {
+                    $('#tableD').append(`<tr table-active>
+
+                        <td>${d.id}</td>
+                        <td>${d.name}</td>
+                        <td>${d.type}</td>
+                        <td>${d.ports}</td>
 
                         <td>
 
@@ -82,34 +133,27 @@
                             </a>
 
                         </td>
-                    </tr>
+                    </tr>`);
+                });
+            }
+        });
+    });
 
-                    {{/each}}
+    /*function selectdevice() {
+        const device = $("#gdevices").val();
+        console.log(device);
+        $.ajax({
+            url: 'gdevice/' + device,
+            success: function (gDevice) {
+                const device = gDevice[0];
+                $("#name").val(device.name);
+                $("#id").val(device.id);
+                $("#description").val(device.description);
+                $("#amount").val(device.amount);
+                $("#ports").val(device.ports);
+            }
 
-                </tbody>
+        });
+    }*/
 
-
-                <tfoot>
-
-                    <tr>
-                        <th>ID</th>
-                        <th>Dispositivo</th>
-                        <th>Tipo</th>
-                        <TH>Hora inicio</TH>
-                        <th>N&uacute;mero puertos</th>
-
-                    </tr>
-
-                </tfoot>
-
-            </table>
-        </div>
-
-
-
-
-
-    </div>
-
-
-</div>
+</script>
