@@ -88,6 +88,12 @@ router.post('/practice/add/next/confirm', (req, res) => {
     res.redirect('/teacher/practice/list');
 });
 
+router.get('/practice/add/cancel/:practice', async (req, res) => {
+    console.log(req.params);
+    console.log('cancelando');
+    res.redirect('/teacher/practice/list');
+});
+
 router.get('/practice/create', async (req, res) => {
     const practices = await pool.query('SELECT * FROM PRACTICE');
     res.render('teacher/bookPracticeG', { practices });
@@ -123,11 +129,12 @@ router.get('/practice/add/device/:practice/:device', async (req, res) => {
     if (d[0] == null) {
         await pool.query('INSERT INTO DEVICEBYPRACTICE(practice, device)VALUES(?,?)', [practice, device]);
         const dev = await pool.query('SELECT * FROM GENERALDEVICE WHERE id = ?', [device]);
-        console.log(dev);
         res.json(dev);
+    }else{
+        req.flash('success', 'El dispositivo ya existe');
+        res.json('');
     }
-    req.flash('success', 'El dispositivo ya existe');
-    res.json('');
+    
 
 });
 module.exports = router;
