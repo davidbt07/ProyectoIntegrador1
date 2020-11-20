@@ -18,8 +18,11 @@
             <thead>
                 <tr>
 
-                    <th>Nombre</th>
-                    <th>Pods?</th>
+                    <th>Pr&aacute;ctica</th>
+                    <th>Curso</th>
+                    <th>Día</th>
+                    <th>Hora Inicio</th>
+                    <th>Hora final</th>
                     <th></th>
 
                 </tr>
@@ -27,12 +30,15 @@
             </thead>
             <tbody>
 
-                {{#each practices}}
+                {{#each reserves}}
 
                 <tr>
 
                     <td>{{name}}</td>
-                    <td>{{pods}}</td>
+                    <td>{{course}}</td>
+                    <td>{{day}}</td>
+                    <td>{{startHour}}</td>
+                    <td>{{endHour}}</td>
 
                     <td>
 
@@ -88,7 +94,10 @@
             <tfoot>
                 <tr>
                     <th>Nombre</th>
-                    <th>Pods</th>
+                    <th>Curso</th>
+                    <th>Dia</th>
+                    <TH>Hora inicio</TH>
+                    <th>Hora final</th>
 
                 </tr>
             </tfoot>
