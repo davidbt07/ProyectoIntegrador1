@@ -6,32 +6,175 @@
                 <div class="presentation">
                     <h2>Profesor{{teacher.fullname}}</h2>
                     </br>
-                    <h4>Crear Pr&aacute;ctica</h4>
+                    <h4>Editar Pr&aacute;ctica</h4>
                 </div>
                 <div>
                     <br>
-                    <form action="/teacher/practice/add/next" method="post">
-                        <div class="form-group">
+                    <form action="/teacher/practice/list/edit/{{practice.id}}" method="post">
+                        <div class="form-group row">
                             <p style="color: white;"><em> Nombre Pr&aacute;ctica: </em></p>
-                            <input type="text" class="form-control" name="name"
-                                placeholder="Nombre práctica" autofocus />
+                            <input type="text" class="form-control" name="name"  value="{{practice.name}}" placeholder="Nombre de la práctica"
+                                autofocus />
                         </div>
-                        <div class="form-group">
+                        <div class="form-group row">
                             <p style="color: white;"><em> Descripción Pr&aacute;ctica: </em></p>
-                            <textarea class="form-control" placeholder="Descripción de la Práctica" name="description" rows="3"></textarea>
+                            <textarea class="form-control" placehloder="Descripción de la Práctica" name="description"
+                                rows="3">{{practice.description}}</textarea>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group row">
                             <p style="color: white;" class="text-center"><em> Pods?: </em></p>
-                            <input type="checkbox" name="pods" class="form-control">
+                            <input type="checkbox" name="pods" id="pods" class="form-control">
                         </div>
-                        <div class="form-group">
-                            <button class="btn btn-danger" type="reset">Borrar todo</button>
-                            <button class="btn btn-success">Siguiente</button>
+                        <div class="form-group row">
+                            <p style="color: white;" for="tipo"><em> Tipo Dispositivo: </em></p>
+                            <select name="tipo" id="tipo" class="form-control mt-2 bg-primary" onchange="selecttype()">
+                                <option value="null">Seleccione Tipo</option>
+                                {{#each types}}
+                                <option value="{{id}}">{{name}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="form-group row">
+                            <p style="color: white;" for="gdevices"><em> Nombre Dispositivo: </em></p>
+                            <select name="gdevices" id="gdevices" class="form-control mt-2 bg-primary">
+                            </select>
+                        </div>
+                        <div class="form-group row justify-content-center" id="button2">
+                            <button id="addButton" type="button" class="btn btn-outline-primary">Añadir
+                                Dispositivo</button>
                         </div>
 
+                        <div class="row">
+                            <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
+                                <table class="table table-sm table-dark table-hover" id="tableD">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">Dispositivo</th>
+                                            <th scope="col">Tipo</th>
+                                            <th scope="col">N&uacute;mero puertos</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableDevices">
+                                        {{#each devices}}
+
+                                        <tr class="table-active" id="{{id}}">
+
+                                            <td>{{id}}</td>
+                                            <td>{{name}}</td>
+                                            <td>{{type}}</td>
+                                            <td>{{ports}}</td>
+
+                                            <td>
+
+                                                <a onclick="deleteDevice({{id}})" title="Eliminar"
+                                                    class="text-decoration-none">
+                                                    <svg width="1em" height="1em" viewBox="0 0 16 16"
+                                                        class="bi bi-trash" fill="currentColor"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path
+                                                            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                        <path fill-rule="evenodd"
+                                                            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                    </svg>
+                                                </a>
+
+                                            </td>
+                                        </tr>
+
+                                        {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn btn-danger" type="button" id="deleteButton">Borrar pr&aacute;ctica</button>
+                            <button class="btn btn-success">Editar</button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script pract="{{practice.id}}" pod="{{practice.pods}}">
+
+    const pr = document.currentScript.getAttribute('pract');
+    var deleteButton = document.getElementById('deleteButton');
+    deleteButton.onclick = function () {
+        location.assign('/teacher/practice/add/next/cancel/' + pr);
+    }
+
+    const pods = document.currentScript.getAttribute('pod');
+    if(pods == true){
+        document.getElementById('pods').checked = true;
+    }
+
+    function selecttype() {
+        const typ = $("#tipo").val();
+        $.ajax({
+            url: '/teacher/practice/add/gdevicesfortype/' + typ,
+            success: function (deviceG) {
+                $('#gdevices').html('');
+                $('#gdevices').append(`<option> 
+                                        Seleccione
+                                    </option>`);
+
+                deviceG.forEach(gdevice => {
+                    $('#gdevices').append(`<option value="${gdevice.id}"> 
+                                        ${gdevice.name} 
+                                    </option>`);
+                });
+            }
+        });
+    }
+
+    const practica = document.currentScript.getAttribute('pract');
+    const deleteDevice = function (id) {
+        $.ajax({
+            url: '/teacher/practice/add/delete/' + practica + '/' + id,
+            success: function () {
+                $(`#${id}`).remove();
+            }
+        });
+    }
+
+    const addButton = document.getElementById('addButton');
+    addButton.addEventListener("click", () => {
+        const device = $('#gdevices').val();
+        $.ajax({
+            url: '/teacher/practice/add/device/' + practica + '/' + device,
+            success: function (dev) {
+
+                dev.forEach(d => {
+                    $('#tableDevices').append(`<tr table-active id="${d.id}">
+
+                        <td>${d.id}</td>
+                        <td>${d.name}</td>
+                        <td>${d.type}</td>
+                        <td>${d.ports}</td>
+
+                        <td>
+
+                            <a title="Eliminar" onclick="deleteDevice(${d.id})" class="text-decoration-none">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash"
+                                    fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                    <path fill-rule="evenodd"
+                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>`);
+                });
+            },
+            error: function (XMLHttpRequest) {
+                alert(XMLHttpRequest);
+            }
+        });
+    });
+
+</script>

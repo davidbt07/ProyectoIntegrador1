@@ -69,7 +69,7 @@
     const pr = document.currentScript.getAttribute('pract');
     var cancelButton = document.getElementById('cancelButton');
     cancelButton.onclick = function () {
-        location.assign('/teacher/practice/add/cancel/' + pr);
+        location.assign('/teacher/practice/add/next/cancel/' + pr);
     }
 
     function selecttype() {
@@ -95,7 +95,7 @@
     const deleteDevice = function (id) {
         $.ajax({
             url: '/teacher/practice/add/delete/' + practica + '/' + id,
-            success: function (device) {
+            success: function () {
                 $(`#${id}`).remove();
             }
         });
