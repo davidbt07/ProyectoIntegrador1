@@ -2,13 +2,41 @@ const express = require('express');
 const router = express.Router();
 
 const pool = require('./../database');
-const { route } = require('.');
 
-
-router.get('/add', async (req, res) => {
+router.get('/add',async(req, res) => {
     const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
     res.render('admin/addg', { gtypes });
 });
+
+
+function ensureToken(req, res, next) {
+    const bearerheader = req.token;
+    console.log(bearerheader);
+    if (typeof bearerheader !== 'undefined') {
+
+        jwt.verify(bearerheader, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
+            if (err) {
+                res.sendStatus(403);
+
+            } else {
+                console.log(data);
+                const user = data.user;
+                const role = data.roleCode;
+                req.user = { user, role };
+
+                next();
+            }
+
+
+        });
+
+    } else {
+        res.sendStatus(401);
+
+    }
+
+
+}
 
 router.post('/add', async (req, res) => {
 
@@ -30,8 +58,8 @@ router.post('/add', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
+    console.log(req.user);
     const gDevices = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type');
-   
     res.render('admin/listgDevices', { gDevices });
 });
 
@@ -150,5 +178,6 @@ router.post('/editss/:id', async (req, res) => {
  console.log(req.body);
 
 });
+
 
 module.exports = router;
