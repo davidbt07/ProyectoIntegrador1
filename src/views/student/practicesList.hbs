@@ -3,7 +3,7 @@
         <div class="col-md-4 mx-auto">
             <div class="text-center">
                 <div class="presentation">
-                    <h2>Profesor{{teacher.fullname}}</h2>
+                    <h2>Estudiante{{student.fullname}}</h2>
                     </br>
                     <h5>Pr&aacute;cticas Programadas</h5>
                 </div>
@@ -14,31 +14,52 @@
 
 <div class="container p-4">
     <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
+
+
         <table class="display table-hover table-responsive" id="table_id">
+
             <thead>
+
                 <tr>
 
-                    <th>Nombre</th>
-                    <th>Pods?</th>
-                    <th>Cantidad Dispositivos</th>
-                    <th hidden></th>
+                    <th>Pr&aacute;ctica</th>
+                    <th>Curso</th>
+                    <th>Día</th>
+                    <th>Hora Inicio</th>
+                    <th>Hora final</th>
+                    <th></th>
 
                 </tr>
 
             </thead>
             <tbody>
 
+
                 {{#each practices}}
 
-                <tr id="{{id}}">
+
+                <tr>
 
                     <td>{{name}}</td>
-                    <td>{{pods}}</td>
-                    <td>{{cantidad}}</td>
+                    <td>{{course}}</td>
+                    <td>{{day}}</td>
+                    <td>{{startHour}}</td>
+                    <td>{{endHour}}</td>
 
                     <td>
 
-                        <a href="/teacher/practice/list/zoomin/{{id}}" title="zoominPractice" class="text-decoration-none">
+                        <a href="/student/.../{{id}}" title="play" class="text-decoration-none">
+
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-collection-play"
+                                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M14.5 13.5h-13A.5.5 0 0 1 1 13V6a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5zm-13 1A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5h-13zM2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3zm2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1z" />
+                                <path fill-rule="evenodd"
+                                    d="M6.258 6.563a.5.5 0 0 1 .507.013l4 2.5a.5.5 0 0 1 0 .848l-4 2.5A.5.5 0 0 1 6 12V7a.5.5 0 0 1 .258-.437z" />
+                            </svg>
+                        </a>
+
+                        <a href="/student/practice/list/zoomin/{{id}}" title="zoominPractice" class="text-decoration-none">
 
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-plus-circle"
                                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -49,7 +70,7 @@
                             </svg>
                         </a>
 
-                        <a href="/teacher/practice/list/edit/{{id}}" title="editPractice" class="text-decoration-none">
+                        <a href="/student/practice/list/edit/{{id}}" title="editPractice" class="text-decoration-none">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"
@@ -57,7 +78,7 @@
                             </svg>
                         </a>
 
-                        <a onclick="deleteD({{id}})"  title="Eliminar" class="text-decoration-none">
+                        <a href="/student/practice/remove/{{id}}" title="Eliminar" class="text-decoration-none">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -73,30 +94,27 @@
                 </tr>
 
                 {{/each}}
-                
+
             </tbody>
 
+
             <tfoot>
+
                 <tr>
                     <th>Nombre</th>
-                    <th>Pods</th>
-                    <th>Cantidad</th>
-                    <th hidden></th>
+                    <th>Curso</th>
+                    <th>Dia</th>
+                    <TH>Hora inicio</TH>
+                    <th>Hora final</th>
 
                 </tr>
+
             </tfoot>
+
         </table>
+
+
+
     </div>
+
 </div>
-
-<script >
-
-   const deleteD = function(id) {
-       $.ajax({
-           url: '/teacher/practice/list/delete/' + id,
-            success: function() {
-                $(`#${id}`).remove();
-            }
-       });
-   }
-</script>

@@ -9,8 +9,7 @@
                 </div>
                 <div>
                     <br>
-                    <p>reserva: {{id}}</p>
-                    <form action="/teacher/practice/list/edit/{{reserve.id}}" method="post">
+                    <form action="/teacher/reserve/list/edit/{{reserve.id}}" method="post">
                         <div class="form-group">
                             <p style="color: white;"><em> Nombre Pr&aacute;ctica: </em></p>
                              <select name="name" class="form-control mt-2 bg-primary">
@@ -22,7 +21,7 @@
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Día: </em></p>
-                            <input type="date" name="day" class="form-control" value="{{reserve.day}}">
+                            <input type="date" name="day" class="form-control" value="{{reserve.day}}" placeholder="{{reserve.day}}">
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Hora inicio: </em></p>

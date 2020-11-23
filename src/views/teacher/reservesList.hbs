@@ -18,9 +18,11 @@
             <thead>
                 <tr>
 
-                    <th>Nombre</th>
-                    <th>Pods?</th>
-                    <th>Cantidad Dispositivos</th>
+                    <th>Pr&aacute;ctica</th>
+                    <th>Curso</th>
+                    <th>Día</th>
+                    <th>Hora Inicio</th>
+                    <th>Hora final</th>
                     <th hidden></th>
 
                 </tr>
@@ -28,17 +30,30 @@
             </thead>
             <tbody>
 
-                {{#each practices}}
+                {{#each reserves}}
 
-                <tr id="{{id}}">
+                <tr>
 
                     <td>{{name}}</td>
-                    <td>{{pods}}</td>
-                    <td>{{cantidad}}</td>
+                    <td>{{course}}</td>
+                    <td>{{day}}</td>
+                    <td>{{startHour}}</td>
+                    <td>{{endHour}}</td>
 
                     <td>
 
-                        <a href="/teacher/practice/list/zoomin/{{id}}" title="zoominPractice" class="text-decoration-none">
+                        <a href="/teacher/.../{{id}}" title="play" class="text-decoration-none">
+
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-collection-play"
+                                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M14.5 13.5h-13A.5.5 0 0 1 1 13V6a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5zm-13 1A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5h-13zM2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3zm2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1z" />
+                                <path fill-rule="evenodd"
+                                    d="M6.258 6.563a.5.5 0 0 1 .507.013l4 2.5a.5.5 0 0 1 0 .848l-4 2.5A.5.5 0 0 1 6 12V7a.5.5 0 0 1 .258-.437z" />
+                            </svg>
+                        </a>
+
+                        <a href="/teacher/reserve/list/zoomin/{{id}}" title="zoominPractice" class="text-decoration-none">
 
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-plus-circle"
                                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -49,7 +64,7 @@
                             </svg>
                         </a>
 
-                        <a href="/teacher/practice/list/edit/{{id}}" title="editPractice" class="text-decoration-none">
+                        <a href="/teacher/reserve/list/edit/{{id}}" title="editPractice" class="text-decoration-none">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"
@@ -57,7 +72,7 @@
                             </svg>
                         </a>
 
-                        <a onclick="deleteD({{id}})"  title="Eliminar" class="text-decoration-none">
+                        <a href="/teacher/reserve/remove/{{id}}" title="Eliminar" class="text-decoration-none">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -79,8 +94,10 @@
             <tfoot>
                 <tr>
                     <th>Nombre</th>
-                    <th>Pods</th>
-                    <th>Cantidad</th>
+                    <th>Curso</th>
+                    <th>Dia</th>
+                    <TH>Hora inicio</TH>
+                    <th>Hora final</th>
                     <th hidden></th>
 
                 </tr>
@@ -88,15 +105,3 @@
         </table>
     </div>
 </div>
-
-<script >
-
-   const deleteD = function(id) {
-       $.ajax({
-           url: '/teacher/practice/list/delete/' + id,
-            success: function() {
-                $(`#${id}`).remove();
-            }
-       });
-   }
-</script>
