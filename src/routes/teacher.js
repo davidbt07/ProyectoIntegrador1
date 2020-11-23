@@ -25,26 +25,37 @@ router.get('/reserve/list/zoomin/:id', async (req, res) => {
 router.get('/reserve/list/edit/:id', async (req, res) => {
     const { id } = req.params;
     console.log(id);
-    var reserve = await pool.query('SELECT r.id as id, r.course as course, r.day as day, r.startHour as startHour, r.endHour as endHour, r.podsAmount as podsAmount, p.name as name, r.semester as semester, r.groupC as groupC FROM RESERVEG r JOIN PRACTICE p ON r.id_practice = p.id WHERE r.id = ?', [id]);
-    const practices = await pool.query('SELECT * FROM PRACTICE');//Le falta filtro a la practica
+    var reserve = await pool.query('SELECT r.id as id, r.course as course, r.day as day, r.startHour as startHour, r.endHour as endHour, r.podsAmount as podsAmount, p.name as name, r.semester as semester, r.groupC as groupC, r.id_practice as practice FROM RESERVEG r JOIN PRACTICE p ON r.id_practice = p.id WHERE r.id = ?', [id]);
+    const practices = await pool.query('SELECT * FROM PRACTICE');//Le falta filtro a la practica, son practicas de un profesor especifico
     const d = reserve[0].day;
     const fecha = new Date(d);
     reserve[0].day = fecha.getUTCFullYear() + '-' + fecha.getUTCMonth() + '-' + fecha.getUTCDate();
-    const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE');
     console.log(reserve[0]);
+    const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE');
     res.render('teacher/editReserve', { reserve: reserve[0], practices, courses });
 });
 router.post('/reserve/list/edit/:id', async (req, res) => {
     const { id } = req.params;
-    const { name, day, startHour, endHour, course, podsAmount } = req.body;
+    console.log('este es el body');
     console.log(req.body);
+    const { name, day, startHour, endHour, course, semesters, groups } = req.body;
+    var { podsAmount } = req.body;
+    console.log(req.body);
+    const tempPractice = await pool.query('SELECT * FROM PRACTICE WHERE id = ?', [name]);
+    if(tempPractice[0].pods == null){
+        console.log('practica temporal')
+        console.log(tempPractice[0]);
+        podsAmount = null;
+    }
     const newReserve = {
         id_practice: name,
         day,
         startHour,
         endHour,
         course,
-        podsAmount
+        podsAmount,
+        semester:semesters,
+        groupC:groups
     };
     await pool.query('UPDATE RESERVEG set ? WHERE id = ?', [newReserve, id]);
     req.flash('success', 'PRÁCTICA ACTUALIZADA EXITOSAMENTE');
@@ -207,13 +218,15 @@ router.get('/reserve/create/groupbysemester/:semester/:course', async (req, res)
 
 router.get('/reserve/create/podsinpractice/:practice', async (req, res) => {
     const { practice } = req.params;
-    console.log('aquí estamos');
+    console.log(practice);
     const pods = await pool.query('SELECT pods FROM PRACTICE WHERE id = ?', [practice]);
     console.log(pods);
-    if (pods[0].pods == true ){
-        pods[0] =true;
-    }else{
-        pods[0] = false
+    if(pods[0]){
+        if (pods[0].pods == true ){
+            pods[0] = true;
+        }else{
+            pods[0] = false;
+        }
     }
     res.json(pods[0]);
 });

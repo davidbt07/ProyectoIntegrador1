@@ -21,7 +21,7 @@ CREATE TABLE ADMIN(
   );
 
   CREATE TABLE TEACHER(
-  id INT(10) PRIMARY KEY,
+  id INT(10) PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(50),
   password VARCHAR(50)
   );
@@ -29,9 +29,7 @@ CREATE TABLE ADMIN(
   id INT(10) PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(50),
   password VARCHAR(50)
-
-  )
-  ;
+  );
 
 CREATE TABLE GENERALTYPE(
  id INT(4) NOT NULL AUTO_INCREMENT,
@@ -72,10 +70,13 @@ CREATE TABLE RESERVEG(
    id  INT(10)PRIMARY KEY AUTO_INCREMENT,
    id_practice INT(10) NOT NULL,
    course VARCHAR(35) NOT NULL,
+   semester VARCHAR(6),
+   groupC VARCHAR(2),
    day timestamp NOT NULL,
    startHour TIME NOT NULL,
    endHour TIME NOT NULL,
    podsAmount INT(2),
+   FOREIGN KEY (course, semester, groupC) REFERENCES COURSE (name, semester, groupC) ON DELETE CASCADE,
    FOREIGN KEY (id_practice) REFERENCES PRACTICE(id) ON DELETE CASCADE);
 
 CREATE TABLE RESERVEBYDEVICE(
@@ -98,25 +99,27 @@ CREATE TABLE COURSE(
    name VARCHAR(35),
    semester VARCHAR(6),
    groupC VARCHAR(2),
-   teacher_id VARCHAR(10),
+   teacher_id INT(10),
    FOREIGN KEY(teacher_id) REFERENCES TEACHER(id),
    PRIMARY KEY(name, semester, groupC)
 );
 
 CREATE TABLE ENROLLMENT(
-   student_id VARCHAR(10),
+   student_id INT(10),
    semester VARCHAR(6) NOT NULL,
    course VARCHAR(35) NOT NULL,
    groupC VARCHAR(2) NOT NULL,
    FOREIGN KEY(course, semester, groupC) REFERENCES COURSE(name, semester, groupC),
+   FOREIGN KEY(student_id) REFERENCES STUDENT(id),
    PRIMARY KEY(student_id, semester, course, groupC)
 );
 
-INSERT INTO TEACHER(id, name, password) VALUES('1234567890', 'Andres Marin','1234');
-INSERT INTO COURSE(name, groupC, semester, teacher_id) VALUES('Comunicaciones y lab I', '1', '2020-1', '1234567890');
-INSERT INTO COURSE(name, groupC, semester, teacher_id) VALUES('Comunicaciones y lab II', '2', '2020-1', '1234567890');
-INSERT INTO ENROLLMENT(student_id, semester, course, groupC) VALUES('1234567891', '2020-1', 'Comunicaciones y lab I', '1');
-INSERT INTO ENROLLMENT(student_id, semester, course, groupC) VALUES('1234567892', '2020-1', 'Comunicaciones y lab I', '1');
+INSERT INTO TEACHER(name, password) VALUES('Andres Marin','1234');
+INSERT INTO STUDENT(name, password) VALUES ('cualquiera', '123');
+INSERT INTO COURSE(name, groupC, semester, teacher_id) VALUES('Comunicaciones y lab I', '1', '2020-1', '1');
+INSERT INTO COURSE(name, groupC, semester, teacher_id) VALUES('Comunicaciones y lab II', '2', '2020-1', '1');
+INSERT INTO ENROLLMENT(student_id, semester, course, groupC) VALUES('1', '2020-1', 'Comunicaciones y lab I', '1');
+INSERT INTO ENROLLMENT(student_id, semester, course, groupC) VALUES('1', '2020-1', 'Comunicaciones y lab II', '2');
 
 INSERT INTO GENERALTYPE(name) VALUES ("SWL3");
 INSERT INTO GENERALTYPE(name) VALUES ("SWL2");
@@ -124,9 +127,10 @@ INSERT INTO GENERALTYPE(name) VALUES ("ROUTER");
 INSERT INTO GENERALTYPE(name) VALUES ("PC");
 
 INSERT INTO GENERALDEVICE(id,name,type,description,amount,ports) VALUES (1,'Microtik',1,'Switche de nivel 3',10,20);
+INSERT INTO GENERALDEVICE(id,name,type,description,amount,ports) VALUES (2,'Switch',2,'Switche de nivel 2',9,18);
 
 INSERT INTO PRACTICE(name, description, pods) values('vlans', 'Uso de vlans', true);
 INSERT INTO RESERVEG(id_practice, course, semester, groupC, day, startHour, endHour, podsAmount) values(1, 'Comunicaciones y lab I','2020-1', '1', '2020/10/25', 12-00-00, 02-00-00, 4);
 INSERT INTO SPECIFICDEVICE(id, state, type)VALUES(1,'DISPONIBLE',1);
 INSERT INTO RESERVEBYDEVICE(reserve, device)VALUES(1,1);
-INSERT INTO DEVICEBYPRACTICE(practice, device)VALUES(2,1);
+INSERT INTO DEVICEBYPRACTICE(practice, device)VALUES(1,1);

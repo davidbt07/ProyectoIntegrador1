@@ -13,7 +13,7 @@
                         <div class="form-group">
                             <p style="color: white;"><em> Nombre Pr&aacute;ctica: </em></p>
                              <select name="name" id="practice" class="form-control mt-2 bg-primary" onchange="selectPractice()">
-                                <option value="{{reserve.id}}">{{reserve.name}}</option>
+                                <option value="{{reserve.practice}}">{{reserve.name}}</option>
                                 <option disabled>_____________</option>
                                 {{#each practices}} 
                                     <option value="{{id}}">{{name}}</option> 
@@ -70,10 +70,9 @@
     </div>
 </div>
 
-<script pods="{{reserve.podsAmount}}">
+<script>
 
     const pods = document.getElementById('inpPods').value;
-    console.log(pods);
     if(pods === ''){
         document.getElementById('pods').hidden = true;
     }else if(pods != ''){
@@ -131,6 +130,7 @@
                             <p style="color: white;"><em>Cantidad de pods: </em></p>
                             <input type="number" name="podsAmount" class="form-control" id="inpPods" value="{{reserve.podsAmount}}">
                         </div>`);
+                        document.getElementById('pods').hidden = false;
                 }
             }
         });
