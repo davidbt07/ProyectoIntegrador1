@@ -209,7 +209,7 @@
 
     function selectdevice() {
         const device = $("#gdevices").val();
-        console.log(device);
+    
         $.ajax({
             url: 'gdevice/' + device,
             success: function (gDevice) {
