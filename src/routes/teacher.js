@@ -25,14 +25,14 @@ router.get('/reserve/list/zoomin/:id', async (req, res) => {
 router.get('/reserve/list/edit/:id', async (req, res) => {
     const { id } = req.params;
     console.log(id);
-    var reserve = await pool.query('SELECT r.id as id, r.course as course, r.day as day, r.startHour as startHour, r.endHour as endHour, r.podsAmount as podsAmount, p.name as name FROM RESERVEG r JOIN PRACTICE p ON r.id_practice = p.id WHERE r.id = ?', [id]);
+    var reserve = await pool.query('SELECT r.id as id, r.course as course, r.day as day, r.startHour as startHour, r.endHour as endHour, r.podsAmount as podsAmount, p.name as name, r.semester as semester, r.groupC as groupC FROM RESERVEG r JOIN PRACTICE p ON r.id_practice = p.id WHERE r.id = ?', [id]);
     const practices = await pool.query('SELECT * FROM PRACTICE');//Le falta filtro a la practica
     const d = reserve[0].day;
     const fecha = new Date(d);
-    console.log(fecha);
     reserve[0].day = fecha.getUTCFullYear() + '-' + fecha.getUTCMonth() + '-' + fecha.getUTCDate();
-    console.log(reserve[0].day);
-    res.render('teacher/editReserve', { reserve: reserve[0], practices });
+    const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE');
+    console.log(reserve[0]);
+    res.render('teacher/editReserve', { reserve: reserve[0], practices, courses });
 });
 router.post('/reserve/list/edit/:id', async (req, res) => {
     const { id } = req.params;
@@ -54,18 +54,19 @@ router.post('/reserve/list/edit/:id', async (req, res) => {
 router.get('/reserve/remove/:id', async (req, res) => {
     const { id } = req.params;
     await pool.query('DELETE FROM RESERVEG WHERE id = ?', [id]);
-    req.flash('success', 'PRACTICA ELIMINADA EXITOSAMENTE');
-    res.redirect('/teacher/reserve/list');
+    res.json('');
 });
 
 router.get('/reserve/create', async (req, res) => {
     const practices = await pool.query('SELECT * FROM PRACTICE');
-    res.render('teacher/bookPracticeG', { practices });
+    //Poner el filtro del profesor en los cursos a obtener
+    const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE');
+    res.render('teacher/bookPracticeG', { practices, courses });
 });
 router.post('/reserve/create', async (req, res) => {
-    const { name, day, startHour, endHour, course, podsAmount } = req.body;
-    await pool.query('INSERT INTO RESERVEG(id_practice, day, startHour, endHour, course, podsAmount) values(?,?,?,?,?,?)', [name, day, startHour, endHour, 'COM2', podsAmount]);
-    req.flash('success', 'PRÁCTICA CREADA EXITOSAMENTE');
+    const { name, day, startHour, endHour, course, semesters, groups, podsAmount } = req.body;
+    await pool.query('INSERT INTO RESERVEG(id_practice, course, semester, groupC, day, startHour, endHour, podsAmount) values (?,?,?,?,?,?,?,?)', [name, course, semesters, groups, day, startHour, endHour, podsAmount]);
+    req.flash('success', 'RESERVA CREADA EXITOSAMENTE');
     res.redirect('/teacher/reserve/list');
 });
 
@@ -188,9 +189,33 @@ router.get('/practice/add/delete/:practice/:device', async (req, res) => {
 
 router.get('/practice/list/delete/:id', async (req, res) => {
     const { id } = req.params;
-    console.log(req.params);
     await pool.query('DELETE FROM PRACTICE WHERE id = ?', [id]);
     res.json('');
+});
+
+router.get('/reserve/create/semesterbycourse/:course', async (req, res) => {
+    const { course } = req.params;
+    const semesters = await pool.query('SELECT DISTINCT(semester) FROM COURSE WHERE name = ?',[course]);
+    res.json(semesters);
+});
+
+router.get('/reserve/create/groupbysemester/:semester/:course', async (req, res) => {
+    const { semester, course } = req.params;
+    const groups = await pool.query('SELECT DISTINCT(groupC) FROM COURSE WHERE name = ? and semester = ?', [course, semester]);
+    res.json(groups);
+});
+
+router.get('/reserve/create/podsinpractice/:practice', async (req, res) => {
+    const { practice } = req.params;
+    console.log('aquí estamos');
+    const pods = await pool.query('SELECT pods FROM PRACTICE WHERE id = ?', [practice]);
+    console.log(pods);
+    if (pods[0].pods == true ){
+        pods[0] =true;
+    }else{
+        pods[0] = false
+    }
+    res.json(pods[0]);
 });
 
 module.exports = router;
