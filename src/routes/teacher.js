@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/reserve/list', isLoggedIn, isTeacher, async (req, res) => {
-    const reserves = await pool.query('SELECT r.id, r.id_practice, r.course, r.day, r.startHour, r.endHour, p.name, p.pods FROM RESERVEG r INNER JOIN PRACTICE p ON r.id_practice = p.id;');
+    const reserves = await pool.query('SELECT r.id, r.id_practice, r.course, r.day, r.startHour, r.endHour, p.name, p.pods FROM RESERVEG r INNER JOIN PRACTICE p ON r.id_practice = p.id');
     res.render('teacher/reservesList', { reserves });
 });
 
