@@ -2,11 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\src",
+    "\\src\\lib",
     "\\src\\routes",
     "\\src\\views",
     "\\src\\views\\admin",
     "\\src\\views\\auth",
-    "\\src\\views\\layouts",
     "\\src\\views\\partials",
     "\\src\\views\\student",
     "\\src\\views\\teacher"

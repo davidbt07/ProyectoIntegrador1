@@ -16,6 +16,16 @@ module.exports = {
             return next();
         }
         return res.redirect('/auth/role')
+    }, isTeacher(req, res, next) {
+        if (req.user.role == 'profesor') {
+            return next();
+        }
+        return res.redirect('/auth/role')
+    }, isStudent(req, res, next) {
+        if (req.user.role == 'estudiante') {
+            return next();
+        }
+        return res.redirect('/auth/role')
     }
  
 
