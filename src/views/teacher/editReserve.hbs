@@ -5,15 +5,16 @@
                 <div class="presentation">
                     <h2>Profesor{{teacher.fullname}}</h2>
                     </br>
-                    <h4>Editar pr&aacute;ctica programada</h4>
+                    <h4>Reservar pr&aacute;ctica</h4>
                 </div>
                 <div>
                     <br>
                     <form action="/teacher/reserve/list/edit/{{reserve.id}}" method="post">
                         <div class="form-group">
                             <p style="color: white;"><em> Nombre Pr&aacute;ctica: </em></p>
-                             <select name="name" class="form-control mt-2 bg-primary">
-                                <option value="{{reserve.id}}">{{reserve.name}}</option>
+                             <select name="name" id="practice" class="form-control mt-2 bg-primary" onchange="selectPractice()">
+                                <option value="{{reserve.practice}}">{{reserve.name}}</option>
+                                <option disabled>_____________</option>
                                 {{#each practices}} 
                                     <option value="{{id}}">{{name}}</option> 
                                 {{/each}}
@@ -21,7 +22,7 @@
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Día: </em></p>
-                            <input type="date" name="day" class="form-control" value="{{reserve.day}}" placeholder="{{reserve.day}}">
+                            <input type="date" name="day" class="form-control" value="{{reserve.day}}">
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Hora inicio: </em></p>
@@ -33,20 +34,33 @@
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Curso: </em></p>
-                            <select name="course" class="form-control mt-2 bg-primary">
+                            <select name="course" id="course" class="form-control mt-2 bg-primary" onchange="selectCourse()">
                                 <option value="{{reserve.course}}">{{reserve.course}}</option>
+                                <option disabled>_____________</option>
                                 {{#each courses}} 
-                                    <option value="{{id}}">{{name}}</option> 
+                                    <option value="{{name}}">{{name}}</option> 
                                 {{/each}}
                             </select>
                         </div>
                         <div class="form-group">
+                            <p style="color: white;"><em>Semestre: </em></p>
+                            <select name="semesters" id="semesters" class="form-control mt-2 bg-primary" onchange="selectSemester()">
+                                <option value="{{reserve.semester}}">{{reserve.semester}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em>Grupo: </em></p>
+                            <select name="groups" id="groups" class="form-control mt-2 bg-primary">
+                                <option value="{{reserve.groupC}}">{{reserve.groupC}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="pods">
                             <p style="color: white;"><em>Cantidad de pods: </em></p>
-                            <input type="number" name="podsAmount" class="form-control" value="{{reserve.podsAmount}}">
+                            <input type="number" name="podsAmount" class="form-control" id="inpPods" value="{{reserve.podsAmount}}">
                         </div>
                         <div class="form-group">
                             <button class="btn btn-danger" type="reset">Borrar todo</button>
-                            <button class="btn btn-success">Editar</button>
+                            <button class="btn btn-success">Reservar</button>
                         </div>
 
                     </form>
@@ -55,3 +69,70 @@
         </div>
     </div>
 </div>
+
+<script>
+
+    const pods = document.getElementById('inpPods').value;
+    if(pods === ''){
+        document.getElementById('pods').hidden = true;
+    }else if(pods != ''){
+        document.getElementById('pods').hidden = false;
+    }
+
+    function selectCourse() {
+        const course = $("#course").val();
+        $.ajax({
+            url: '/teacher/reserve/create/semesterbycourse/' + course,
+            success: function (semesters) {
+                $('#semesters').html('');
+                $('#semesters').append(`<option> 
+                                        Seleccione grupo
+                                    </option>`);
+
+                semesters.forEach(semester => {
+                    $('#semesters').append(`<option value="${semester.semester}"> 
+                                        ${semester.semester} 
+                                    </option>`);
+                });
+            }
+        });
+    }
+
+    function selectSemester() {
+        const semester = $("#semesters").val();
+        const course = $("#course").val();
+        $.ajax({
+            url: '/teacher/reserve/create/groupbysemester/' + semester + '/' + course,
+            success: function (groups) {
+                $('#groups').html('');
+                $('#groups').append(`<option> 
+                                        Seleccione grupo
+                                    </option>`);
+
+                groups.forEach(group => {
+                    $('#groups').append(`<option value="${group.groupC}"> 
+                                        ${group.groupC} 
+                                    </option>`);
+                });
+            }
+        });
+    }
+
+    function selectPractice() {
+        const practice = $('#practice').val();
+        $.ajax({
+            url: '/teacher/reserve/create/podsinpractice/' + practice,
+            success: function(pods){
+                if(pods === false){
+                    $('#pods').html('');
+                }else if(pods === true){
+                     $('#pods').html(`<div class="form-group" id="pods">
+                            <p style="color: white;"><em>Cantidad de pods: </em></p>
+                            <input type="number" name="podsAmount" class="form-control" id="inpPods" value="{{reserve.podsAmount}}">
+                        </div>`);
+                        document.getElementById('pods').hidden = false;
+                }
+            }
+        });
+    }
+</script>

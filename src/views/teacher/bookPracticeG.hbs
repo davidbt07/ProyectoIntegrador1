@@ -12,7 +12,7 @@
                     <form action="/teacher/reserve/create" method="post">
                         <div class="form-group">
                             <p style="color: white;"><em> Nombre Pr&aacute;ctica: </em></p>
-                             <select name="name" class="form-control mt-2 bg-primary">
+                             <select name="name" id="practice" class="form-control mt-2 bg-primary" onchange="selectPractice()">
                                 <option >Seleccione pr&aacute;ctica</option>
                                 {{#each practices}} 
                                     <option value="{{id}}">{{name}}</option> 
@@ -33,14 +33,26 @@
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Curso: </em></p>
-                            <select name="course" class="form-control mt-2 bg-primary">
+                            <select name="course" id="course" class="form-control mt-2 bg-primary" onchange="selectCourse()">
                                 <option>Seleccione curso</option>
                                 {{#each courses}} 
-                                    <option value="{{id}}">{{name}}</option> 
+                                    <option value="{{name}}">{{name}}</option> 
                                 {{/each}}
                             </select>
                         </div>
                         <div class="form-group">
+                            <p style="color: white;"><em>Semestre: </em></p>
+                            <select name="semesters" id="semesters" class="form-control mt-2 bg-primary" onchange="selectSemester()">
+                                <option>Seleccione semestre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <p style="color: white;"><em>Grupo: </em></p>
+                            <select name="groups" id="groups" class="form-control mt-2 bg-primary">
+                                <option>Seleccione grupo</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="pods">
                             <p style="color: white;"><em>Cantidad de pods: </em></p>
                             <input type="number" name="podsAmount" class="form-control">
                         </div>
@@ -55,3 +67,61 @@
         </div>
     </div>
 </div>
+
+<script>
+    function selectCourse() {
+        const course = $("#course").val();
+        $.ajax({
+            url: '/teacher/reserve/create/semesterbycourse/' + course,
+            success: function (semesters) {
+                $('#semesters').html('');
+                $('#semesters').append(`<option> 
+                                        Seleccione grupo
+                                    </option>`);
+
+                semesters.forEach(semester => {
+                    $('#semesters').append(`<option value="${semester.semester}"> 
+                                        ${semester.semester} 
+                                    </option>`);
+                });
+            }
+        });
+    }
+
+    function selectSemester() {
+        const semester = $("#semesters").val();
+        const course = $("#course").val();
+        $.ajax({
+            url: '/teacher/reserve/create/groupbysemester/' + semester + '/' + course,
+            success: function (groups) {
+                $('#groups').html('');
+                $('#groups').append(`<option> 
+                                        Seleccione grupo
+                                    </option>`);
+
+                groups.forEach(group => {
+                    $('#groups').append(`<option value="${group.groupC}"> 
+                                        ${group.groupC} 
+                                    </option>`);
+                });
+            }
+        });
+    }
+
+    function selectPractice() {
+        const practice = $('#practice').val();
+        $.ajax({
+            url: '/teacher/reserve/create/podsinpractice/' + practice,
+            success: function(pods){
+                if(pods === false){
+                    $('#pods').html('');
+                }else if(pods === true){
+                     $('#pods').html(`<div class="form-group" id="pods">
+                            <p style="color: white;"><em>Cantidad de pods: </em></p>
+                            <input type="number" name="podsAmount" class="form-control">
+                        </div>`);
+                }
+            }
+        });
+    }
+</script>
