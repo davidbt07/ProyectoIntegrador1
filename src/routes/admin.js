@@ -1,44 +1,14 @@
 const express = require('express');
 const router = express.Router();
-
+const { isLoggedIn, isAdmin } = require('../lib/auth');
 const pool = require('./../database');
 
-router.get('/add',async(req, res) => {
+router.get('/add', isLoggedIn,isAdmin, async(req, res) => {
     const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
     res.render('admin/addg', { gtypes });
 });
 
-
-function ensureToken(req, res, next) {
-    const bearerheader = req.token;
-    console.log(bearerheader);
-    if (typeof bearerheader !== 'undefined') {
-
-        jwt.verify(bearerheader, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
-            if (err) {
-                res.sendStatus(403);
-
-            } else {
-                console.log(data);
-                const user = data.user;
-                const role = data.roleCode;
-                req.user = { user, role };
-
-                next();
-            }
-
-
-        });
-
-    } else {
-        res.sendStatus(401);
-
-    }
-
-
-}
-
-router.post('/add', async (req, res) => {
+router.post('/add', isLoggedIn, isAdmin, async (req, res) => {
 
    
 
@@ -57,26 +27,25 @@ router.post('/add', async (req, res) => {
     res.redirect('/admin');
 });
 
-router.get('/', async (req, res) => {
-    console.log(req.user);
+router.get('/', isLoggedIn, isAdmin, async (req, res) => {
     const gDevices = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type');
     res.render('admin/listgDevices', { gDevices });
 });
 
 
 
-router.get('/delete/:id', async (req, res) => {
+router.get('/delete/:id', isLoggedIn, isAdmin,async (req, res) => {
     const { id } = req.params;
     const a = await pool.query('DELETE FROM GENERALDEVICE WHERE ID=?', [id]).catch(e => {
         req.flash('danger', 'ELIMINE PRIMERO LOS DISPOSITIVOS ESPECIFICOS');
         res.redirect('/admin');
-    });;
+    });
    
     req.flash('success', 'DISPOSITIVO ELIMINADO EXITOSAMENTE');
     res.redirect('/admin');
 });
 
-router.get('/deletes/:id', async (req, res) => {
+router.get('/deletes/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { id } = req.params;
     var idg = await pool.query('SELECT type FROM SPECIFICDEVICE WHERE ID=?', [id]);
     r = idg[0].type;
@@ -88,7 +57,7 @@ router.get('/deletes/:id', async (req, res) => {
     res.redirect('/admin/gdetails/'+r);
 });
 
-router.get('/edit/:id', async (req, res) => {
+router.get('/edit/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { id } = req.params;
     const gDevice = await pool.query('SELECT * FROM GENERALDEVICE WHERE ID=?', [id]);
     const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
@@ -96,19 +65,19 @@ router.get('/edit/:id', async (req, res) => {
     res.render('admin/editgDevice', { gDevice: gDevice[0], gtypes });
 });
 
-router.get('/edit/', async (req, res) => {
+router.get('/edit/', isLoggedIn, isAdmin, async (req, res) => {
     const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
 
     res.render('admin/editDevices', { gtypes});
 });
 
-router.get('/delete/', async (req, res) => {
+router.get('/delete/', isLoggedIn, isAdmin, async (req, res) => {
     const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
 
     res.render('admin/deleteDevices', { gtypes });
 });
 
-router.get('/gdetails/:id', async (req, res) => {
+router.get('/gdetails/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { id } = req.params;
     const gDevice = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.id=?', [id]);
     const sDevices = await pool.query('SELECT * FROM (SELECT id as sid,state, type from SPECIFICDEVICE) sd JOIN GENERALDEVICE g WHERE sd.type=g.id and g.id=?', [id]);
@@ -117,7 +86,7 @@ router.get('/gdetails/:id', async (req, res) => {
 });
 
 
-router.post('/edit/:id', async (req, res) => {
+router.post('/edit/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { id } = req.params;
     const { name, type, description, amount, ports } = req.body;
     const updatedgDevice = { name, type, description, amount, ports };
@@ -127,32 +96,32 @@ router.post('/edit/:id', async (req, res) => {
 
 });
 
-router.get('/gdevicesfortype/:typ', async  (req, res) => {
+router.get('/gdevicesfortype/:typ', isLoggedIn, isAdmin, async  (req, res) => {
     const { typ } = req.params;
     const gDevices = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.type=?', [typ]);
     res.json(gDevices);
 });
-router.get('/gdevice/:gdevices', async (req, res) => {
+router.get('/gdevice/:gdevices', isLoggedIn, isAdmin, async (req, res) => {
     const { gdevices } = req.params;
     const gDevice = await pool.query('SELECT * FROM GENERALDEVICE WHERE ID=?', [gdevices]);
     res.json(gDevice);
 });
 
-router.get('/sdevicedevices/:sdevice', async (req, res) => {
+router.get('/sdevicedevices/:sdevice', isLoggedIn, isAdmin, async (req, res) => {
     const { sdevice } = req.params;
     const sdevices = await pool.query('SELECT * FROM GENERALDEVICE g, SPECIFICDEVICE c WHERE c.type=g.id and c.type=?', [sdevice]);
     res.json(sdevices);
 });
 
 
-router.get('/edits/:id', async (req, res) => {
+router.get('/edits/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { id } = req.params;
     const sDevice = await pool.query('SELECT * FROM SPECIFICDEVICE WHERE ID=?', [id]);
   
     res.render('admin/editsDevice', { sDevice:sDevice[0]});
 });
 
-router.post('/edits/:id', async (req, res) => {
+router.post('/edits/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { id } = req.params;
     const { state } = req.body;
     const { type } = req.body;
@@ -166,7 +135,7 @@ router.post('/edits/:id', async (req, res) => {
 });
 
 
-router.post('/editss/:id', async (req, res) => {
+router.post('/editss/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { sdevices } = req.body;
     const { states } = req.body;
     const { gdevicess } = req.body;

@@ -6,10 +6,11 @@ const flash = require('connect-flash');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session');
 const { database } = require('./keys.js');
+const passport = require('passport');
 
 //initializations
 const app = express();
-
+require('./lib/passport');
 //settings
 app.set('port', process.env.PORT || 4000);
 app.set('views', path.join(__dirname, 'views'));
@@ -34,7 +35,8 @@ app.use(flash());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
+app.use(passport.initialize());
+app.use(passport.session())
 
 
 
@@ -46,15 +48,43 @@ app.use(express.json());
 app.use((req, res, next) => {
     app.locals.success = req.flash('success');
     app.locals.danger = req.flash('danger');
+    app.locals.message = req.flash('message');
+    app.locals.user = req.user;
+
+    if (typeof req.user !== 'undefined') {
+
+        if (req.user.role == 'estudiante') {
+            app.locals.student = req.user;
+            req.student = req.user;
+        }
+        else if (req.user.role == 'admin') {
+            app.locals.admin = req.user;
+            req.admin = req.user;
+        }
+        else if (req.user.role == 'profesor') {
+            app.locals.teacher = req.user;
+            req.teacher = req.user;
+        }
+
+    } else {
+        app.locals.teacher = req.user;
+        req.teacher = req.user;
+        app.locals.admin = req.user;
+        req.admin = req.user;
+        app.locals.student = req.user;
+        req.student = req.user;
+    }
+
     next();
 });
 
 //Routes
 app.use(require('./routes'));
-app.use(require('./routes/authentication'));
+
 app.use('/admin', require('./routes/admin'));
 app.use('/teacher', require('./routes/teacher'));
 app.use('/student', require('./routes/student'));
+app.use(require('./routes/authentication'));
 app.use('/auth', require('./routes/authentication'));
 
 //Public

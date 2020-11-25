@@ -1,24 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\database",
     "\\src",
-<<<<<<< HEAD
-    "\\src\\lib",
-=======
-    "\\src\\public",
-    "\\src\\public\\css",
->>>>>>> 8825e65fb2b343ddc7e82a0e249156bc18ec5b50
     "\\src\\routes",
     "\\src\\views",
     "\\src\\views\\admin",
+    "\\src\\views\\auth",
+    "\\src\\views\\layouts",
+    "\\src\\views\\partials",
     "\\src\\views\\student",
     "\\src\\views\\teacher"
   ],
-<<<<<<< HEAD
   "SelectedNode": "\\src\\routes\\authentication.js",
-=======
-  "SelectedNode": "\\src\\views\\student\\practicesList.hbs",
->>>>>>> 8825e65fb2b343ddc7e82a0e249156bc18ec5b50
   "PreviewInSolutionExplorer": false
 }

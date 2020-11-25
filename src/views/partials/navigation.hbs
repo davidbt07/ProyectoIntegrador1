@@ -1,50 +1,34 @@
-   
+{{#if user}}
 <div class="sidebar">
-
-    <img />
-
-    {{#if admin}}
+    {{#if admin.fullname}}
     <h3>Admin</h3>
-
-
-    {{else if teacher}}
+    {{else if teacher.fullname}}
     <h3>Profesor</h3>
-    {{else}}
+    {{else if student.fullname}}
     <h3>Estudiante</h3>
     {{/if}}
 
 <ul>
 
-    {{#if admin}}
-    <li><a href="/admin/add"><i></i>Registrar dispositivo</a></li>
-    <li><a href="/admin/add"><i></i>Editar dispositivo</a></li>
-    <li><a href="/admin/add"><i></i>Eliminar dispositivo</a></li>
-    <li><a href="/admin/add"><i></i>Gestionar PC's</a></li>
-    {{else if teacher}}
-    <li><a href="/admin/add"><i></i>Lista de pr&aacute;cticas</a></li>
-    <li><a href="/admin/add"><i></i>Realizar pr&aacute;cticas</a></li>
-    <li><a href="/admin/add"><i></i>Editar pr&aacute;cticas</a></li>
-    <li><a href="/admin/add"><i></i>Reservar pr&aacute;cticas</a></li>
-
-    {{else}}
+    {{#if admin.fullname}}
     <li><a href="/admin/"><i></i>Dispositivos</a></li>
     <li><a href="/admin/add"><i></i>Registrar dispositivo</a></li>
     <li><a href="/admin/edit"><i></i>Editar dispositivo</a></li>
     <li><a href="/admin/delete"><i></i>Eliminar dispositivo</a></li>
     <li><a href="/admin/add"><i></i>Gestionar PC's</a></li>
-
-    <!--<li><a href="/deviceg/add"><i></i>Lista de pr&aacute;cticas</a></li>
-    <li><a href="/deviceg/add"><i></i>Realizar pr&aacute;cticas</a></li>
-    <li><a href="/deviceg/add"><i></i>Editar pr&aacute;cticas</a></li>
-    <li><a href="/deviceg/add"><i></i>Reservar pr&aacute;cticas</a></li>-->
+    {{else if teacher.fullname}}
+    <li><a href="/teacher/reserve/list"><i></i>Pr&aacute;cticas grupales</a></li>
+    <li><a href="/teacher/reserve/create"><i></i>Reservar pr&aacute;ctica</a></li>
+    {{else if student.fullname}}
+    <li><a href="/admin/add"><i></i>ESTUDIANTE</a></li>
     {{/if}}
 
 </ul>
 
-    <button class="closesession btn btn-dark" href="/deviceg/add">Cerrar Sesi&oacute;n</button>
-
-
+    <a class="closesession btn btn-dark" href="/logout">Cerrar Sesi&oacute;n</a>
 
 </div>
- 
 
+
+
+{{/if}}

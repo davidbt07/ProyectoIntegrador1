@@ -1,90 +1,88 @@
 const express = require('express');
 const router = express.Router();
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
-const { route } = require('.');
-router.get('/', (req, res) => {
-    res.render('auth/signin');
+const passport=require('passport');
+const { isNotLoggedIn, isLoggedIn } = require('../lib/auth');
+
+router.get('/', isNotLoggedIn, (req, res) => {
+    res.redirect('/signin');
+});
+router.get('/admin', isNotLoggedIn, (req, res) => {
+    res.render('auth/signinadmin');
+});
+router.get('/teacher', isNotLoggedIn, (req, res) => {
+    res.render('auth/signinteacher');
 });
 
-router.get('/signup', (req, res) => {
+router.get('/signup', isNotLoggedIn, (req, res) => {
     res.render('auth/signup');
 });
 
-router.post('/signup', (req, res) => {
+router.get('/signin', isNotLoggedIn,(req, res) => {
+    res.render('auth/main')
+});
+
+
+//PARA CREAR UN ADMIN,STUDENT Y TEACHER POR DEFAULT
+router.get('/default', async (req, res) => {
+    const pool = require('./../database');
+    const helpers = require('../lib/helpers');
+    const username = 'root';
+    const password = 'root';
+    const id = '000000000';
+    const fullname = 'root';
+    let role = 'admin';
+
+
+   let newUser = {
+        username,id,role,fullname
+    }
+    newUser.password = await helpers.encryptPassword(password);
+    await pool.query('INSERT INTO USER SET?', [newUser]);
+    newUser.role = 'estudiante';
+    await pool.query('INSERT INTO USER SET?', [newUser]);
+    newUser.role = 'profesor';
+    await pool.query('INSERT INTO USER SET?', [newUser]);
+
+    res.redirect('/signin');
+});
+
+router.post('/signin', isNotLoggedIn, (req, res, next) => {
     console.log(req.body);
-    res.send("recivido");
+    passport.authenticate('local.signin', {
+        successRedirect: '/role',
+        failureRedirect: '/signin',
+        failureFlash: true
+    })(req, res, next);
 });
 
-router.post('/login', authUser,ensureToken,async (req, res) => {
-
-    if (req.user.role == 1005) {
-
-        res.setHeader('Authorization', 'Bearer ' + user.token);
-        res.redirect('admin/');
+router.get('/role', isLoggedIn, (req, res) => {
+    console.log('here we go');
+    if (typeof req.student !== 'undefined') {
+        res.redirect('/student/practice/list');
+    } else if (typeof req.admin !== 'undefined') {
+        res.redirect('/admin/');
+    } else if (typeof req.teacher !== 'undefined') {
+        res.redirect('/teacher/reserve/list');
     }
-    
+
 });
 
-async function authRole(role) {
-    return (res, req, next => {
-        if (req.user.role !== role) {
-            res.send('Not allowed');
-        }
-        next();
-    });
+
+router.post('/signup', isNotLoggedIn, passport.authenticate('local.signup', {
+    succesRedirect: '/admin',
+    failureRedirect: '/signup',
+    failureFlash: true
+}));
+
+router.get('/logout', (req, res) => {
+    req.logOut();
+    req.session.destroy();
+    res.redirect('/auth');
+});
 
 
-}
 
-
-async function authUser(req, res, next) {
-    const { username } = req.body;
-    const { password } = req.body;
-    const axios = require('axios')
-
-    const a = await axios.post('https://lis.udea.edu.co/api/ldap/login', {
-        'username': username,
-        'password': password
-    }).catch(e => {
-        req.flash('danger', '¡USUARIO y/o CONSTRASEÑA INVÁLIDOS!');
-        res.redirect('/auth/');
-      
-    });
-
-    req.token = a.data.token;
-    next();
-}
-
-
-function ensureToken(req, res, next){
-    const bearerheader = req.token;
-  
-    if (typeof bearerheader !== 'undefined') {
-       
-        jwt.verify(bearerheader, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
-            if (err) {
-                res.sendStatus(403);
-
-            } else {
-               
-                const user = data.user;
-                const token = bearerheader;
-                const role = data.roleCode;
-                req.user = { user, role, token};  
-               
-                next();
-            }
-
-
-        });
-      
-    } else {
-        res.sendStatus(401);
-       
-    }
   
 
-}
-module.exports.authRole = authRole;
+
 module.exports = router;
