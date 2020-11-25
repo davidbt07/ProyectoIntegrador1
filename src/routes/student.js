@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const { isLoggedIn, isStudent } = require('../lib/auth');
 const pool = require('../database');
 
 
@@ -8,12 +8,12 @@ router.get('/', (req, res) => {
     res.send('Hi student');
 });
 
-router.get('/practice/list', async(req, res) => {
+router.get('/practice/list', isLoggedIn, isStudent, async(req, res) => {
     const practices = await pool.query('SELECT r.id, r.id_practice, r.course, r.day, r.startHour, r.endHour, p.name, p.pods FROM RESERVEG r INNER JOIN PRACTICE p ON r.id_practice = p.id;');
     res.render('student/practicesList', {practices});
 });
 
-router.get('/practice/list/zoomin/:id', async (req, res) => {
+router.get('/practice/list/zoomin/:id', isLoggedIn, isStudent, async (req, res) => {
     const { id } = req.params;
     const reserve = await pool.query('SELECT * FROM RESERVEG WHERE ID=?', [id]);
     const practice = await pool.query('SELECT * FROM PRACTICE p WHERE p.id = ?', [reserve[0].id_practice]);
@@ -22,11 +22,11 @@ router.get('/practice/list/zoomin/:id', async (req, res) => {
 });
 
 
-router.get('/practice/reserva', async (req, res) => {
+router.get('/practice/reserva', isLoggedIn, isStudent, async (req, res) => {
     const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
     res.render('student/reservarPractice', { gtypes });
 });
-router.get('/practice/editarReserva', (req, res) => {
+router.get('/practice/editarReserva', isLoggedIn, isStudent, (req, res) => {
     res.render('student/editReserve');
 });
 
