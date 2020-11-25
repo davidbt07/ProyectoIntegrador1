@@ -3,17 +3,18 @@ const express = require('express');
 const router = express.Router();
 const { isLoggedIn, isTeacher } = require('../lib/auth');
 const pool = require('../database');
-
+const role = 'profesor';
 
 router.get('/', (req, res) => {
     res.send('Hi teacher');
 });
 
 router.get('/reserve/list', isLoggedIn, isTeacher, async (req, res) => {
-    const reserves = await pool.query('SELECT r.id, r.id_practice, r.course, r.day, r.startHour, r.endHour, p.name, p.pods FROM RESERVEG r INNER JOIN PRACTICE p ON r.id_practice = p.id');
+    const reserves = await pool.query('SELECT r.id, r.id_practice, r.course, r.day, r.startHour, r.endHour, p.name, p.pods FROM RESERVEG r INNER JOIN PRACTICE p ON r.id_practice = p.id where p.teacher_id = ? and role = ?', [req.teacher.id, role]);
     res.render('teacher/reservesList', { reserves });
 });
 
+//Por editar
 router.get('/reserve/list/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     const reserve = await pool.query('SELECT * FROM RESERVEG WHERE ID=?', [id]);
@@ -24,14 +25,13 @@ router.get('/reserve/list/zoomin/:id', isLoggedIn, isTeacher, async (req, res) =
 
 router.get('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
-    console.log(id);
-    var reserve = await pool.query('SELECT r.id as id, r.course as course, r.day as day, r.startHour as startHour, r.endHour as endHour, r.podsAmount as podsAmount, p.name as name, r.semester as semester, r.groupC as groupC, r.id_practice as practice FROM RESERVEG r JOIN PRACTICE p ON r.id_practice = p.id WHERE r.id = ?', [id]);
-    const practices = await pool.query('SELECT * FROM PRACTICE');//Le falta filtro a la practica, son practicas de un profesor especifico
+    var reserve = await pool.query('SELECT r.id as id, r.course as course, r.day as day, r.startHour as startHour, r.endHour as endHour, r.podsAmount as podsAmount, p.name as name, r.semester as semester, r.groupC as groupC, r.id_practice as practice FROM RESERVEG r JOIN PRACTICE p ON r.id_practice = p.id WHERE r.id = ? and p.teacher_id = ? and role = ?', [id, req.teacher.id, role]);
+    const practices = await pool.query('SELECT * FROM PRACTICE WHERE teacher_id = ? and role = ?', [req.teacher.id, role]);//Le falta filtro a la practica, son practicas de un profesor especifico
     const d = reserve[0].day;
     const fecha = new Date(d);
     reserve[0].day = fecha.getUTCFullYear() + '-' + fecha.getUTCMonth() + '-' + fecha.getUTCDate();
     console.log(reserve[0]);
-    const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE');
+    const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE WHERE teacher_id = ? and role = ?', [req.teacher.id, role]);
     res.render('teacher/editReserve', { reserve: reserve[0], practices, courses });
 });
 router.post('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) => {
@@ -40,7 +40,6 @@ router.post('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) =>
     var { podsAmount } = req.body;
     const tempPractice = await pool.query('SELECT * FROM PRACTICE WHERE id = ?', [name]);
     if(tempPractice[0].pods == null){
-        console.log('practica temporal')
         console.log(tempPractice[0]);
         podsAmount = null;
     }
@@ -66,9 +65,8 @@ router.get('/reserve/remove/:id', isLoggedIn, isTeacher, async (req, res) => {
 });
 
 router.get('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
-    const practices = await pool.query('SELECT * FROM PRACTICE');
-    //Poner el filtro del profesor en los cursos a obtener
-    const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE');
+    const practices = await pool.query('SELECT * FROM PRACTICE WHERE teacher_id = ? and role = ?', [req.teacher.id, role]);
+    const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE WHERE teacher_id = ? and role = ?', [req.teacher.id, role]);
     res.render('teacher/bookPracticeG', { practices, courses });
 });
 router.post('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
@@ -80,7 +78,7 @@ router.post('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
 
 router.get('/practice/list', isLoggedIn, isTeacher, async (req, res) => {
     //Un profesor tiene unas practicas, por lo cual falta unir eso en el modelo entidad relacion.
-    var practices = await pool.query('SELECT p.id ,p.name, p.pods, COUNT(dp.practice) as cantidad FROM PRACTICE p LEFT JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice GROUP BY p.id ,p.name, p.pods');
+    var practices = await pool.query('SELECT p.id ,p.name, p.pods, COUNT(dp.practice) as cantidad FROM PRACTICE p LEFT JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice WHERE p.teacher_id = ? and p.role = ? GROUP BY p.id ,p.name, p.pods', [req.teacher.id, role]);
     Object.keys(practices).forEach(practice => {
         if(practices[practice].pods == true){
             practices[practice].pods='SI';
@@ -96,6 +94,10 @@ router.get('/practice/add', isLoggedIn, isTeacher, (req, res) => {
     res.render('teacher/createPractice');
 });
 
+router.get('/practice/add/next', isLoggedIn, isTeacher, (req, res) => {
+    res.render('teacher/nextCreatePractice');
+});
+
 router.post('/practice/add/next', isLoggedIn, isTeacher, async (req, res) => {
     let pod;
     if (req.body.pods === 'on') {
@@ -103,10 +105,10 @@ router.post('/practice/add/next', isLoggedIn, isTeacher, async (req, res) => {
     } else {
         pod = false;
     }
-    var practice = await pool.query('SELECT * FROM PRACTICE WHERE name = ? and description = ? and pods = ?', [req.body.name, req.body.description, pod]);
+    var practice = await pool.query('SELECT * FROM PRACTICE WHERE name = ? and description = ? and pods = ? and teacher_id = ? and role = ?', [req.body.name, req.body.description, pod, req.teacher.id, role]);
     if (practice[0] == undefined) {
-        await pool.query('INSERT INTO practice(name, description,pods)VALUES(?,?,?)', [req.body.name, req.body.description, pod]);
-        practice = await pool.query('SELECT * FROM PRACTICE WHERE name = ? and description = ? and pods = ?', [req.body.name, req.body.description, pod]);
+        await pool.query('INSERT INTO practice(name, description,pods, teacher_id, role)VALUES(?,?,?,?,?)', [req.body.name, req.body.description, pod, req.teacher.id, role]);
+        practice = await pool.query('SELECT * FROM PRACTICE WHERE name = ? and description = ? and pods = ? and teacher_id = ? and role = ?', [req.body.name, req.body.description, pod, req.teacher.id, role]);
         const { name } = req.body;
         const types = await pool.query('SELECT * FROM GENERALTYPE');
         res.render('teacher/nextCreatePractice', { name, types, practice: practice[0] });
@@ -117,10 +119,6 @@ router.post('/practice/add/next', isLoggedIn, isTeacher, async (req, res) => {
     }
 
 
-});
-
-router.get('/practice/add/next', isLoggedIn, isTeacher, (req, res) => {
-    res.render('teacher/nextCreatePractice');
 });
 
 router.post('/practice/add/next/confirm', isLoggedIn, isTeacher, (req, res) => {
@@ -203,13 +201,13 @@ router.get('/practice/list/delete/:id', isLoggedIn, isTeacher, async (req, res) 
 
 router.get('/reserve/create/semesterbycourse/:course', isLoggedIn, isTeacher, async (req, res) => {
     const { course } = req.params;
-    const semesters = await pool.query('SELECT DISTINCT(semester) FROM COURSE WHERE name = ?',[course]);
+    const semesters = await pool.query('SELECT DISTINCT(semester) FROM COURSE WHERE name = ? and teacher_id = ? and role = ?',[course, req.teacher.id, role]);
     res.json(semesters);
 });
 
 router.get('/reserve/create/groupbysemester/:semester/:course', isLoggedIn, isTeacher, async (req, res) => {
     const { semester, course } = req.params;
-    const groups = await pool.query('SELECT DISTINCT(groupC) FROM COURSE WHERE name = ? and semester = ?', [course, semester]);
+    const groups = await pool.query('SELECT DISTINCT(groupC) FROM COURSE WHERE name = ? and semester = ? and teacher_id = ? and role = ?', [course, semester, req.teacher.id, role]);
     res.json(groups);
 });
 
