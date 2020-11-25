@@ -1,7 +1,7 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
-
+const { isLoggedIn, isTeacher } = require('../lib/auth');
 const pool = require('../database');
 
 
@@ -9,12 +9,12 @@ router.get('/', (req, res) => {
     res.send('Hi teacher');
 });
 
-router.get('/reserve/list', async (req, res) => {
+router.get('/reserve/list', isLoggedIn, isTeacher, async (req, res) => {
     const reserves = await pool.query('SELECT r.id, r.id_practice, r.course, r.day, r.startHour, r.endHour, p.name, p.pods FROM RESERVEG r INNER JOIN PRACTICE p ON r.id_practice = p.id;');
     res.render('teacher/reservesList', { reserves });
 });
 
-router.get('/reserve/list/zoomin/:id', async (req, res) => {
+router.get('/reserve/list/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     const reserve = await pool.query('SELECT * FROM RESERVEG WHERE ID=?', [id]);
     const practice = await pool.query('SELECT * FROM PRACTICE p WHERE p.id = ?', [reserve[0].id_practice]);
@@ -22,7 +22,7 @@ router.get('/reserve/list/zoomin/:id', async (req, res) => {
     res.render('teacher/zoominReservesList', { practice: practice[0], devices });
 });
 
-router.get('/reserve/list/edit/:id', async (req, res) => {
+router.get('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     console.log(id);
     var reserve = await pool.query('SELECT r.id as id, r.course as course, r.day as day, r.startHour as startHour, r.endHour as endHour, r.podsAmount as podsAmount, p.name as name, r.semester as semester, r.groupC as groupC, r.id_practice as practice FROM RESERVEG r JOIN PRACTICE p ON r.id_practice = p.id WHERE r.id = ?', [id]);
@@ -34,13 +34,10 @@ router.get('/reserve/list/edit/:id', async (req, res) => {
     const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE');
     res.render('teacher/editReserve', { reserve: reserve[0], practices, courses });
 });
-router.post('/reserve/list/edit/:id', async (req, res) => {
+router.post('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
-    console.log('este es el body');
-    console.log(req.body);
     const { name, day, startHour, endHour, course, semesters, groups } = req.body;
     var { podsAmount } = req.body;
-    console.log(req.body);
     const tempPractice = await pool.query('SELECT * FROM PRACTICE WHERE id = ?', [name]);
     if(tempPractice[0].pods == null){
         console.log('practica temporal')
@@ -62,26 +59,26 @@ router.post('/reserve/list/edit/:id', async (req, res) => {
     res.redirect('/teacher/reserve/list');
 });
 
-router.get('/reserve/remove/:id', async (req, res) => {
+router.get('/reserve/remove/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     await pool.query('DELETE FROM RESERVEG WHERE id = ?', [id]);
     res.json('');
 });
 
-router.get('/reserve/create', async (req, res) => {
+router.get('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
     const practices = await pool.query('SELECT * FROM PRACTICE');
     //Poner el filtro del profesor en los cursos a obtener
     const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE');
     res.render('teacher/bookPracticeG', { practices, courses });
 });
-router.post('/reserve/create', async (req, res) => {
+router.post('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
     const { name, day, startHour, endHour, course, semesters, groups, podsAmount } = req.body;
     await pool.query('INSERT INTO RESERVEG(id_practice, course, semester, groupC, day, startHour, endHour, podsAmount) values (?,?,?,?,?,?,?,?)', [name, course, semesters, groups, day, startHour, endHour, podsAmount]);
     req.flash('success', 'RESERVA CREADA EXITOSAMENTE');
     res.redirect('/teacher/reserve/list');
 });
 
-router.get('/practice/list', async (req, res) => {
+router.get('/practice/list', isLoggedIn, isTeacher, async (req, res) => {
     //Un profesor tiene unas practicas, por lo cual falta unir eso en el modelo entidad relacion.
     var practices = await pool.query('SELECT p.id ,p.name, p.pods, COUNT(dp.practice) as cantidad FROM PRACTICE p LEFT JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice GROUP BY p.id ,p.name, p.pods');
     Object.keys(practices).forEach(practice => {
@@ -95,11 +92,11 @@ router.get('/practice/list', async (req, res) => {
     res.render('teacher/practicesList',{ practices });
 });
 
-router.get('/practice/add', (req, res) => {
+router.get('/practice/add', isLoggedIn, isTeacher, (req, res) => {
     res.render('teacher/createPractice');
 });
 
-router.post('/practice/add/next', async (req, res) => {
+router.post('/practice/add/next', isLoggedIn, isTeacher, async (req, res) => {
     let pod;
     if (req.body.pods === 'on') {
         pod = true;
@@ -122,15 +119,15 @@ router.post('/practice/add/next', async (req, res) => {
 
 });
 
-router.get('/practice/add/next', (req, res) => {
+router.get('/practice/add/next', isLoggedIn, isTeacher, (req, res) => {
     res.render('teacher/nextCreatePractice');
 });
 
-router.post('/practice/add/next/confirm', (req, res) => {
+router.post('/practice/add/next/confirm', isLoggedIn, isTeacher, (req, res) => {
     res.redirect('/teacher/practice/list');
 });
 
-router.get('/practice/add/next/cancel/:practice', async (req, res) => {
+router.get('/practice/add/next/cancel/:practice', isLoggedIn, isTeacher, async (req, res) => {
     const { practice } = req.params;
     await pool.query('DELETE FROM PRACTICE WHERE id = ?',[practice]).catch(err => {
         console.log(err);
@@ -139,14 +136,14 @@ router.get('/practice/add/next/cancel/:practice', async (req, res) => {
     res.redirect('/teacher/practice/list');
 });
 
-router.get('/practice/list/zoomin/:id', async (req, res) => {
+router.get('/practice/list/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     const practice = await pool.query('SELECT * FROM PRACTICE p WHERE p.id = ?', [id]);
     const devices = await pool.query('SELECT gd.id as id,gd.name as name, gt.name as type, gd.ports as ports FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON dp.device = gd.id JOIN GENERALTYPE gt ON gd.type = gt.id WHERE p.id=?', [id]);
     res.render('teacher/zoominPracticesList', { practice: practice[0], devices });
 });
 
-router.get('/practice/list/edit/:id', async (req, res) => {
+router.get('/practice/list/edit/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     const practice = await pool.query('SELECT * FROM PRACTICE WHERE id = ?', [id]);
     const types = await pool.query('SELECT * FROM GENERALTYPE');
@@ -154,7 +151,7 @@ router.get('/practice/list/edit/:id', async (req, res) => {
     res.render('teacher/editPractice', { practice: practice[0], types, devices});
 });
 
-router.post('/practice/list/edit/:id', async (req, res) => {
+router.post('/practice/list/edit/:id', isLoggedIn, isTeacher, async (req, res) => {
     console.log(req.body);
     console.log(req.params);
     var { name, description, pods, tipo } = req.body;
@@ -175,13 +172,13 @@ router.post('/practice/list/edit/:id', async (req, res) => {
 });
 
 //Rutas ajax
-router.get('/practice/add/gdevicesfortype/:typ', async (req, res) => {
+router.get('/practice/add/gdevicesfortype/:typ', isLoggedIn, isTeacher, async (req, res) => {
     const { typ } = req.params;
     const deviceG = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.type=?', [typ]);
     res.json(deviceG);
 });
 
-router.get('/practice/add/device/:practice/:device', async (req, res) => {
+router.get('/practice/add/device/:practice/:device', isLoggedIn, isTeacher, async (req, res) => {
     const { practice, device } = req.params;
     console.log(req.params);
     await pool.query('INSERT INTO DEVICEBYPRACTICE(practice, device)VALUES(?,?)', [practice, device]).catch(err => {
@@ -192,31 +189,31 @@ router.get('/practice/add/device/:practice/:device', async (req, res) => {
     res.json(dev);
 });
 
-router.get('/practice/add/delete/:practice/:device', async (req, res) => {
+router.get('/practice/add/delete/:practice/:device', isLoggedIn, isTeacher, async (req, res) => {
     const { practice, device } = req.params;
     await pool.query('DELETE FROM DEVICEBYPRACTICE WHERE practice = ? AND device = ?', [practice, device]);
     res.json('');
 });
 
-router.get('/practice/list/delete/:id', async (req, res) => {
+router.get('/practice/list/delete/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     await pool.query('DELETE FROM PRACTICE WHERE id = ?', [id]);
     res.json('');
 });
 
-router.get('/reserve/create/semesterbycourse/:course', async (req, res) => {
+router.get('/reserve/create/semesterbycourse/:course', isLoggedIn, isTeacher, async (req, res) => {
     const { course } = req.params;
     const semesters = await pool.query('SELECT DISTINCT(semester) FROM COURSE WHERE name = ?',[course]);
     res.json(semesters);
 });
 
-router.get('/reserve/create/groupbysemester/:semester/:course', async (req, res) => {
+router.get('/reserve/create/groupbysemester/:semester/:course', isLoggedIn, isTeacher, async (req, res) => {
     const { semester, course } = req.params;
     const groups = await pool.query('SELECT DISTINCT(groupC) FROM COURSE WHERE name = ? and semester = ?', [course, semester]);
     res.json(groups);
 });
 
-router.get('/reserve/create/podsinpractice/:practice', async (req, res) => {
+router.get('/reserve/create/podsinpractice/:practice', isLoggedIn, isTeacher, async (req, res) => {
     const { practice } = req.params;
     console.log(practice);
     const pods = await pool.query('SELECT pods FROM PRACTICE WHERE id = ?', [practice]);
