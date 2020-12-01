@@ -22,15 +22,15 @@
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Día: </em></p>
-                            <input type="date" name="day" class="form-control" value="{{reserve.day}}">
+                            <input type="date" name="day" id="day" class="form-control" value="{{reserve.day}}">
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Hora inicio: </em></p>
-                            <input type="time" name="startHour" class="form-control" value="{{reserve.startHour}}">
+                            <input type="time" name="startHour" id="startHour" class="form-control" value="{{reserve.startHour}}">
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Hora fin: </em></p>
-                            <input type="time" name="endHour" class="form-control" value="{{reserve.endHour}}">
+                            <input type="time" name="endHour" id="endHour" class="form-control" value="{{reserve.endHour}}">
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Curso: </em></p>
@@ -60,7 +60,8 @@
                         </div>
                         <div class="form-group">
                             <button class="btn btn-danger" type="reset">Borrar todo</button>
-                            <button class="btn btn-success">Reservar</button>
+                            <button class="btn btn-primary" id="verifyB" type="button">Verificar</button>
+                            <button class="btn btn-success" id="editButton">Editar</button>
                         </div>
 
                     </form>
@@ -79,7 +80,34 @@
         document.getElementById('pods').hidden = false;
     }
 
+    const verifyButton = document.getElementById('verifyB');
+    verifyButton.onclick = function(){
+        console.log('aqui estamos');
+        const practice = document.getElementById('practice').value;
+        const day = document.getElementById('day').value;
+        const startHour = document.getElementById('startHour').value;
+        const endHour = document.getElementById('endHour').value;
+        const course = document.getElementById('course').value;
+        const semesters = document.getElementById('semesters').value;
+        const group = document.getElementById('groups').value;
+        const array = [practice, day, startHour, endHour, course, semesters, group];
+        $.ajax({
+            url: '/teacher/reserve/create/verify/' + array,
+            success: function(bander){
+                console.log(bander);
+                if(bander === true){
+                     document.getElementById('editButton').disabled = false;
+                }else {
+                    alert('No hay dispositivos disponibles');
+                }
+            }
+        });
+        
+    }
+
+
     function selectCourse() {
+        document.getElementById('editButton').disabled = true;
         const course = $("#course").val();
         $.ajax({
             url: '/teacher/reserve/create/semesterbycourse/' + course,
@@ -99,6 +127,7 @@
     }
 
     function selectSemester() {
+        document.getElementById('editButton').disabled = true;
         const semester = $("#semesters").val();
         const course = $("#course").val();
         $.ajax({
@@ -119,6 +148,7 @@
     }
 
     function selectPractice() {
+        document.getElementById('editButton').disabled = true;
         const practice = $('#practice').val();
         $.ajax({
             url: '/teacher/reserve/create/podsinpractice/' + practice,

@@ -21,15 +21,15 @@
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Día: </em></p>
-                            <input type="date" name="day" class="form-control">
+                            <input type="date" name="day" id="day" class="form-control">
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Hora inicio: </em></p>
-                            <input type="time" name="startHour" class="form-control">
+                            <input type="time" name="startHour" id="startHour" class="form-control">
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Hora fin: </em></p>
-                            <input type="time" name="endHour" class="form-control">
+                            <input type="time" name="endHour" id="endHour" class="form-control">
                         </div>
                         <div class="form-group">
                             <p style="color: white;"><em>Curso: </em></p>
@@ -53,12 +53,13 @@
                             </select>
                         </div>
                         <div class="form-group" id="pods">
-                            <p style="color: white;"><em>Cantidad de pods: </em></p>
+                            <p style="color: #ffffff;"><em>Cantidad de pods: </em></p>
                             <input type="number" name="podsAmount" class="form-control">
                         </div>
                         <div class="form-group">
                             <button class="btn btn-danger" type="reset">Borrar todo</button>
-                            <button class="btn btn-success">Reservar</button>
+                            <button class="btn btn-primary" type="button" id="verifyB">Verificar</button>
+                            <button class="btn btn-success" id="bookButton" disabled>Reservar</button>
                         </div>
 
                     </form>
@@ -69,8 +70,34 @@
 </div>
 
 <script>
+
+    const verifyButton = document.getElementById('verifyB');
+    verifyButton.onclick = function(){
+        const practice = document.getElementById('practice').value;
+        const day = document.getElementById('day').value;
+        const startHour = document.getElementById('startHour').value;
+        const endHour = document.getElementById('endHour').value;
+        const course = document.getElementById('course').value;
+        const semesters = document.getElementById('semesters').value;
+        const group = document.getElementById('groups').value;
+        const array = [practice, day, startHour, endHour, course, semesters, group];
+        $.ajax({
+            url: '/teacher/reserve/create/verify/' + array,
+            success: function(bander){
+                console.log(bander);
+                if(bander === true){
+                     document.getElementById('bookButton').disabled = false;
+                }else {
+                    alert('No hay dispositivos disponibles');
+                }
+            }
+        });
+        
+    }
+
     function selectCourse() {
         const course = $("#course").val();
+        document.getElementById('bookButton').disabled = true;
         $.ajax({
             url: '/teacher/reserve/create/semesterbycourse/' + course,
             success: function (semesters) {
@@ -91,6 +118,7 @@
     function selectSemester() {
         const semester = $("#semesters").val();
         const course = $("#course").val();
+        document.getElementById('bookButton').disabled = true;
         $.ajax({
             url: '/teacher/reserve/create/groupbysemester/' + semester + '/' + course,
             success: function (groups) {
@@ -110,6 +138,7 @@
 
     function selectPractice() {
         const practice = $('#practice').val();
+        document.getElementById('bookButton').disabled = true;
         $.ajax({
             url: '/teacher/reserve/create/podsinpractice/' + practice,
             success: function(pods){

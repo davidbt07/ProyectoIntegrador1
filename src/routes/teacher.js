@@ -17,9 +17,9 @@ router.get('/reserve/list', isLoggedIn, isTeacher, async (req, res) => {
 //Por editar
 router.get('/reserve/list/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
-    const reserve = await pool.query('SELECT * FROM RESERVEG WHERE ID=?', [id]);
+    const reserve = await pool.query('SELECT * FROM RESERVEG WHERE id=?', [id]);
     const practice = await pool.query('SELECT * FROM PRACTICE p WHERE p.id = ?', [reserve[0].id_practice]);
-    const devices = await pool.query('SELECT gd.name as name, gt.name as type, gd.amount as amount, gd.ports as ports FROM RESERVEG r JOIN RESERVEBYDEVICE rd ON r.id = rd.reserve JOIN SPECIFICDEVICE sd ON rd.device = sd.id JOIN GENERALDEVICE gd ON sd.type = gd.id JOIN GENERALTYPE gt ON gd.type = gt.id WHERE r.id = ?', [id]);
+    const devices = await pool.query('SELECT gd.name as name, gt.name as type,COUNT(*) as amount, gd.ports as ports FROM RESERVEG rg JOIN RESERVEBYDEVICE rd ON rg.id = rd.reserve JOIN SPECIFICDEVICE sd ON sd.id = rd.device JOIN GENERALDEVICE gd ON sd.type = gd.id JOIN GENERALTYPE gt ON gd.type = gt.id WHERE rg.id = ? GROUP BY gt.id', [id]);
     res.render('teacher/zoominReservesList', { practice: practice[0], devices });
 });
 
@@ -29,7 +29,16 @@ router.get('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) => 
     const practices = await pool.query('SELECT * FROM PRACTICE WHERE teacher_id = ? and role = ?', [req.teacher.id, role]);//Le falta filtro a la practica, son practicas de un profesor especifico
     const d = reserve[0].day;
     const fecha = new Date(d);
-    reserve[0].day = fecha.getUTCFullYear() + '-' + fecha.getUTCMonth() + '-' + fecha.getUTCDate();
+    var dia = fecha.getUTCDate();
+    var mes = fecha.getUTCMonth();
+    console.log(dia);
+    if(dia < 10){
+        dia = '0' + fecha.getUTCDate();
+    }
+    if(mes <10){
+        mes = '0' + fecha.getUTCMonth();
+    }
+    reserve[0].day = fecha.getUTCFullYear() + '-' + mes + '-' + dia;
     console.log(reserve[0]);
     const courses = await pool.query('SELECT DISTINCT(name) FROM COURSE WHERE teacher_id = ? and role = ?', [req.teacher.id, role]);
     res.render('teacher/editReserve', { reserve: reserve[0], practices, courses });
@@ -40,8 +49,18 @@ router.post('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) =>
     var { podsAmount } = req.body;
     const tempPractice = await pool.query('SELECT * FROM PRACTICE WHERE id = ?', [name]);
     if(tempPractice[0].pods == null){
-        console.log(tempPractice[0]);
         podsAmount = null;
+    }
+    //Aquí hay que actualizar el cambio de practica, es decir, editar la tabla reservebydevice, agregarle o quitarle dispositivos
+    await pool.query('DELETE FROM RESERVEBYDEVICE WHERE reserve = ?', [id]);
+    const students = await pool.query('SELECT COUNT(DISTINCT(student_id)) as cantidad FROM COURSE c JOIN ENROLLMENT e ON e.semester = c.semester and e.course = c.name and e.groupC = c.groupC WHERE c.name=? and c.semester = ? and c.groupC = ?',[course, semesters, groups]);
+    const types = await pool.query('SELECT sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))GROUP BY sd.type ORDER BY sd.type ASC', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name]);
+    for(const type in types){
+        const devices = await pool.query('SELECT * FROM (SELECT sd.id, sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))ORDER BY sd.type ASC) d WHERE type = ? LIMIT ?', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name, `${types[type].type}`, students[0].cantidad + 1]);
+        for(const dev in devices){
+            console.log('insertando');
+            await pool.query('INSERT INTO RESERVEBYDEVICE(reserve, device) VALUES(?,?)', [id,  `${devices[dev].id}`]);
+        }
     }
     const newReserve = {
         id_practice: name,
@@ -70,8 +89,20 @@ router.get('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
     res.render('teacher/bookPracticeG', { practices, courses });
 });
 router.post('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
-    const { name, day, startHour, endHour, course, semesters, groups, podsAmount } = req.body;
+    const { name, day, startHour, endHour, course, semesters, groups } = req.body;
+    var { podsAmount } = req.body;
+    console.log(req.body);
     await pool.query('INSERT INTO RESERVEG(id_practice, course, semester, groupC, day, startHour, endHour, podsAmount) values (?,?,?,?,?,?,?,?)', [name, course, semesters, groups, day, startHour, endHour, podsAmount]);
+    const reserve = await pool.query('SELECT * FROM RESERVEG WHERE id_practice = ? and course = ? and semester = ? and groupC = ? and day = ? and startHour = ? and endHour = ?',[name, course, semesters, groups, day, startHour, endHour]);
+    const students = await pool.query('SELECT COUNT(DISTINCT(student_id)) as cantidad FROM COURSE c JOIN ENROLLMENT e ON e.semester = c.semester and e.course = c.name and e.groupC = c.groupC WHERE c.name=? and c.semester = ? and c.groupC = ?',[course, semesters, groups]);
+    const types = await pool.query('SELECT sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))GROUP BY sd.type ORDER BY sd.type ASC', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name]);
+    for(const type in types){
+        const devices = await pool.query('SELECT * FROM (SELECT sd.id, sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))ORDER BY sd.type ASC) d WHERE type = ? LIMIT ?', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name, `${types[type].type}`, students[0].cantidad + 1]);
+        for(const dev in devices){
+            console.log('insertando');
+            await pool.query('INSERT INTO RESERVEBYDEVICE(reserve, device) VALUES(?,?)', [reserve[0].id,  `${devices[dev].id}`]);
+        }
+    }
     req.flash('success', 'RESERVA CREADA EXITOSAMENTE');
     res.redirect('/teacher/reserve/list');
 });
@@ -224,6 +255,29 @@ router.get('/reserve/create/podsinpractice/:practice', isLoggedIn, isTeacher, as
         }
     }
     res.json(pods[0]);
+});
+
+router.get('/reserve/create/verify/:info', isLoggedIn, isTeacher, async (req, res) => {
+    const info = req.params.info;
+    var array = info.split(',');
+    const students = await pool.query('SELECT COUNT(DISTINCT(student_id)) as cantidad FROM COURSE c JOIN ENROLLMENT e ON e.semester = c.semester and e.course = c.name and e.groupC = c.groupC WHERE c.name=? and c.semester = ? and c.groupC = ?',[array[4], array[5], array[6]]);
+    const devicesAv = await pool.query('SELECT sd.type ,COUNT(*) as cantidad FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id)) GROUP BY sd.type;', [array[0], array[1], array[2], array[3], array[2], array[3], 'DISPONIBLE', array[0]]);
+    var bander = true;
+    if(devicesAv[0] == undefined){
+        bander = false;
+    }else{
+        Object.keys(devicesAv).forEach(iterator => {
+         if(devicesAv[iterator].cantidad < students[0].cantidad){//Es menor o igual
+             console.log(devicesAv[iterator].type,'menor');
+             console.log('Error, NO HAY DISPOSITIVOS DISPONIBLES');
+             bander = false;
+         }else{
+             console.log(devicesAv[iterator].type,'mayor');
+             console.log('Hay dispositivos disponibles');
+         }
+     });
+    }
+    res.json(bander);
 });
 
 module.exports = router;
