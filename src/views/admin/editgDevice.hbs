@@ -21,14 +21,15 @@
             <div class="form-group">
                 <div class="form-inline">
                     <label for="name">Nombre dispositivo&nbsp;&nbsp;</label>
-                    <input type="text" value="{{gDevice.name}}" class="form-control" name="name" id="name" placeholder="Nombre" autofocus />
+                    <input type="text" value="{{gDevice.name}}" class="form-control" name="name" id="name"
+                        placeholder="Nombre" autofocus />
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="type">Elige tipo de dispositivo</label>
                 <select id="type" name="type">
-                  
+
                     {{#each gtypes}}
                     <option value="{{id}}">{{name}}</option>
                     {{/each}}
@@ -40,19 +41,22 @@
             <div class="form-group">
                 <div class="form-inline">
                     <label for="amount">N&uacute;mero de dispositivos:&nbsp;&nbsp;</label>
-                    <input type="number" value="{{gDevice.amount}}" class="form-control" name="amount" id="amount" placeholder="Selecci&oacute;n n&uacute;mero" />
+                    <input type="number" value="{{gDevice.amount}}" class="form-control" name="amount" id="amount"
+                        placeholder="Selecci&oacute;n n&uacute;mero" />
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="form-inline">
                     <label for="ports">N&uacute;mero de puertos:&nbsp;&nbsp;</label>
-                    <input type="number" value="{{gDevice.ports}}" class="form-control" name="ports" id="ports" placeholder="Selecci&oacute;n n&uacute;mero" />
+                    <input type="number" value="{{gDevice.ports}}" class="form-control" name="ports" id="ports"
+                        placeholder="Selecci&oacute;n n&uacute;mero" />
                 </div>
             </div>
 
             <div class="form-group">
-                <textarea type="text" class="form-control" rows="3" name="description" id="description" placeholder="Descripci&oacute;n dispositivo">{{gDevice.description}}</textarea>
+                <textarea type="text" class="form-control" rows="3" name="description" id="description"
+                    placeholder="Descripci&oacute;n dispositivo">{{gDevice.description}}</textarea>
             </div>
 
 

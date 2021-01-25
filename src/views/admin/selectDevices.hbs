@@ -1,0 +1,42 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                    <h2>ADMIN {{admin.fullname}}</h2>
+                    </br>
+                    <h5>SELECCIONE EL HORARIO</h5>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mx-auto">
+                <div class="text-center">
+                    <div>
+                        <br>
+                        <form action="/admin/reserve/create" method="post">
+                            <div class="form-group">
+                                <p style="color: white;"><em>D&iacute;a: </em></p>
+                                <input type="date" name="day" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <p style="color: white;"><em>Hora inicio: </em></p>
+                                <input type="time" name="startHour" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <p style="color: white;"><em>Hora fin: </em></p>
+                                <input type="time" name="endHour" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success">Siguiente</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
