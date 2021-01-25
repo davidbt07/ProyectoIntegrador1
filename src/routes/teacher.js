@@ -138,7 +138,7 @@ router.post('/practice/add/next', isLoggedIn, isTeacher, async (req, res) => {
     }
     var practice = await pool.query('SELECT * FROM PRACTICE WHERE name = ? and description = ? and pods = ? and teacher_id = ? and role = ?', [req.body.name, req.body.description, pod, req.teacher.id, role]);
     if (practice[0] == undefined) {
-        await pool.query('INSERT INTO practice(name, description,pods, teacher_id, role)VALUES(?,?,?,?,?)', [req.body.name, req.body.description, pod, req.teacher.id, role]);
+        await pool.query('INSERT INTO PRACTICE(name, description,pods, teacher_id, role)VALUES(?,?,?,?,?)', [req.body.name, req.body.description, pod, req.teacher.id, role]);
         practice = await pool.query('SELECT * FROM PRACTICE WHERE name = ? and description = ? and pods = ? and teacher_id = ? and role = ?', [req.body.name, req.body.description, pod, req.teacher.id, role]);
         const { name } = req.body;
         const types = await pool.query('SELECT * FROM GENERALTYPE');
