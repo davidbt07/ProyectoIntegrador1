@@ -56,7 +56,7 @@ router.post('/signin', isNotLoggedIn, (req, res, next) => {
 });
 
 router.get('/role', isLoggedIn, (req, res) => {
-    console.log('here we go');
+
     if (typeof req.student !== 'undefined') {
         res.redirect('/student/practice/list');
     } else if (typeof req.admin !== 'undefined') {

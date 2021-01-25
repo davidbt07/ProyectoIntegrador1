@@ -11,6 +11,6 @@
     "\\src\\views\\student",
     "\\src\\views\\teacher"
   ],
-  "SelectedNode": "\\src\\routes\\authentication.js",
+  "SelectedNode": "\\src\\views\\teacher\\editPractice.hbs",
   "PreviewInSolutionExplorer": false
 }

@@ -18,9 +18,9 @@
 
         <div class="form-group">
 
-            <input type="radio" id="general" name="dtype" onchange="hideSpecific(this)" value="general"checked>
+            <input type="radio" id="general" name="dtype" onchange="hideSpecific(this)" value="general" checked>
             <label for="general">General</label>
-            <input type="radio" id="specific" name="dtype" onchange="hideGeneral(this)" value="específico">
+            <input type="radio" id="specific" name="dtype" onchange="hideGeneral(this)" value="especï¿½fico">
             <label for="specific">Espec&iacute;fico</label>
         </div>
 
@@ -51,7 +51,8 @@
             <div class="form-group">
                 <div class="form-inline">
                     <label for="name">Nombre dispositivo&nbsp;&nbsp;</label>
-                    <input type="text" value="" class="form-control" name="name" id="name" placeholder="Nombre" autofocus />
+                    <input type="text" value="" class="form-control" name="name" id="name" placeholder="Nombre"
+                        autofocus />
                 </div>
             </div>
             <div class="form-group">
@@ -70,19 +71,22 @@
             <div class="form-group">
                 <div class="form-inline">
                     <label for="amount">N&uacute;mero de dispositivos:&nbsp;&nbsp;</label>
-                    <input type="number" class="form-control" name="amount" id="amount" placeholder="Selecci&oacute;n n&uacute;mero" />
+                    <input type="number" class="form-control" name="amount" id="amount"
+                        placeholder="Selecci&oacute;n n&uacute;mero" />
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="form-inline">
                     <label for="ports">N&uacute;mero de puertos:&nbsp;&nbsp;</label>
-                    <input type="number" class="form-control" name="ports" id="ports" placeholder="Selecci&oacute;n n&uacute;mero" />
+                    <input type="number" class="form-control" name="ports" id="ports"
+                        placeholder="Selecci&oacute;n n&uacute;mero" />
                 </div>
             </div>
 
             <div class="form-group">
-                <textarea type="text" class="form-control" rows="3" name="description" id="description" placeholder="Descripci&oacute;n dispositivo"></textarea>
+                <textarea type="text" class="form-control" rows="3" name="description" id="description"
+                    placeholder="Descripci&oacute;n dispositivo"></textarea>
             </div>
             <div class="form-group">
                 <button onclick="get_actionG()" class="btn btn-success btn-block">Editar</button>
@@ -128,14 +132,14 @@
 
     </div>
 </div>
-        
+
 <script>
 
     function get_actionG() {
-      
+
         const typ = $("#id").val();
 
-        document.getElementById("generalForm").action = "/admin/edit/"+typ; // Setting form action to "success.php" page
+        document.getElementById("generalForm").action = "/admin/edit/" + typ; // Setting form action to "success.php" page
         document.getElementById("generalForm").submit(); // Submitting form
 
     }
@@ -151,30 +155,30 @@
     }
 
 
-  function selecttype() {
-      const typ = $("#types").val();
-          $.ajax({
-              url: 'gdevicesfortype/'+typ,
-              success: function (gDevices) {
+    function selecttype() {
+        const typ = $("#types").val();
+        $.ajax({
+            url: 'gdevicesfortype/' + typ,
+            success: function (gDevices) {
 
-                  $('#gdevices').html('');
-                  $('#gdevices').append(`<option> 
+                $('#gdevices').html('');
+                $('#gdevices').append(`<option> 
                                        Seleccione
-                                  </option>`); 
+                                  </option>`);
 
 
-                  gDevices.forEach(gdevice => {
+                gDevices.forEach(gdevice => {
 
-                      $('#gdevices').append(`<option value="${gdevice.id}"> 
+                    $('#gdevices').append(`<option value="${gdevice.id}"> 
                                        ${gdevice.name} 
-                                  </option>`); 
+                                  </option>`);
 
-                  });
+                });
 
-                
-              }
 
-          });
+            }
+
+        });
 
     }
 
@@ -209,7 +213,7 @@
 
     function selectdevice() {
         const device = $("#gdevices").val();
-    
+
         $.ajax({
             url: 'gdevice/' + device,
             success: function (gDevice) {
@@ -225,7 +229,7 @@
         });
 
 
-    
+
 
 
     }
@@ -250,7 +254,7 @@
 
         });
 
-       
+
 
 
 
@@ -270,9 +274,9 @@
         $('#states').append(`<option> 
                                        OCUPADO
                                   </option>`);
-               
-                   
-    
+
+
+
     }
 
 
