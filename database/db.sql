@@ -7,13 +7,14 @@ DROP TABLE RESERVEI;
 DROP TABLE PRACTICE;
 DROP TABLE ADMINISTRATOR;
 DROP TABLE SPECIFICDEVICE;
-DROP TABLE GENERALDEVICE;
-DROP TABLE GENERALTYPE;
 DROP TABLE USER;
 DROP TABLE DEVICEBYPRACTICE;
-DROP TABLE COURSE;
 DROP TABLE ENROLLMENT;
 DROP TABLE GENERATEDCODE;
+DROP TABLE GENERALDEVICE;
+DROP TABLE GENERALTYPE;
+DROP TABLE COURSE;
+
 CREATE TABLE USER(
   id INT(10) NOT NULL,
   fullname VARCHAR(50) NOT NULL,
@@ -99,9 +100,7 @@ CREATE TABLE RESERVEG(
    FOREIGN KEY (id_practice) REFERENCES PRACTICE(id) ON DELETE CASCADE);
 
 
-   CREATE TABLE RESERVEPOINTER(
-   id  INT(10) AUTO_INCREMENT PRIMARY KEY,
- );
+ 
 
 CREATE TABLE RESERVEI(
  id  INT(10)PRIMARY KEY AUTO_INCREMENT, 
@@ -117,7 +116,7 @@ CREATE TABLE RESERVEI(
 CREATE TABLE RESERVEBYDEVICE(
    reserve INT(10) NOT NULL,
    device INT(4) NOT NULL,
-   type INT(4), NOT NULL,
+   type VARCHAR(1) NOT NULL,
    FOREIGN KEY(device)REFERENCES SPECIFICDEVICE(id)  ON DELETE CASCADE,
    PRIMARY KEY(reserve, device)
 );
@@ -141,13 +140,19 @@ INSERT INTO GENERALTYPE(name) VALUES ("PC");
 INSERT INTO GENERALDEVICE(id,name,type,description,amount,ports) VALUES (1,'Microtik',1,'Switche de nivel 3',10,20);
 INSERT INTO GENERALDEVICE(id,name,type,description,amount,ports) VALUES (2,'Switch',2,'Switche de nivel 2',9,18);
 
-INSERT INTO PRACTICE(name, description, pods, teacher_id, role) values('vlans', 'Uso de vlans', true, 0, 'profesor');
-INSERT INTO RESERVEG(id_practice, course, semester, groupC, day, startHour, endHour, podsAmount) values(1, 'Comunicaciones y lab I','2020-1', '1', '2020/10/25', 12-00-00, 02-00-00, 4);
-INSERT INTO SPECIFICDEVICE(id, state, type)VALUES(1,'DISPONIBLE',1);
-INSERT INTO RESERVEBYDEVICE(reserve, device)VALUES(1,1);
-
-INSERT INTO DEVICEBYPRACTICE(practice, device)VALUES(1,1);
 INSERT INTO COURSE(name, groupC, semester, teacher_id, role) VALUES('Comunicaciones y lab I', '1', '2020-1', '0', 'profesor');
 INSERT INTO COURSE(name, groupC, semester, teacher_id, role) VALUES('Comunicaciones y lab II', '2', '2020-1', '0', 'profesor');
+
+
+INSERT INTO PRACTICE(name, description, pods, teacher_id, role) values('vlans', 'Uso de vlans', true, 0, 'profesor');
+INSERT INTO RESERVEG(id_practice, course, semester, groupC, day, startHour, endHour, podsAmount) values(2, 'Comunicaciones y lab I','2020-1', '1', '2020/10/25', 00-00-12, 00-00-14, 4);
+
+
+INSERT INTO SPECIFICDEVICE(id, state, type)VALUES(1,'DISPONIBLE',1);
+
+INSERT INTO RESERVEBYDEVICE(reserve, device,type)VALUES(7,1,'G');
+
+INSERT INTO DEVICEBYPRACTICE(practice, device)VALUES(5,1);
 INSERT INTO ENROLLMENT(student_id, role, semester, course, groupC) VALUES('0', 'estudiante', '2020-1', 'Comunicaciones y lab I', '1');
 INSERT INTO ENROLLMENT(student_id, role, semester, course, groupC) VALUES('0', 'estudiante', '2020-1', 'Comunicaciones y lab II', '2');
+

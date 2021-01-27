@@ -30,4 +30,45 @@ router.get('/practice/editarReserva', isLoggedIn, isStudent, (req, res) => {
     res.render('student/editReserve');
 });
 
+
+router.get('/practice/gdevicesfortype/:typ', isLoggedIn, isStudent, async (req, res) => {
+    const { typ } = req.params;
+    const gDevices = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.type=?', [typ]);
+    res.json(gDevices);
+});
+
+router.post('/practice/add/', isLoggedIn, isStudent,async (req, res) => {
+   const{day,startHour,type,endHour}=req.body;
+   console.log(req.body);
+    const r=await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))',[type,type,day,startHour,endHour,startHour,endHour,type,day,startHour,endHour,startHour,endHour])
+    await console.log(r);
+    const idr=r[0].id;
+   
+    const reservei={};
+    reservei.user=req.student.id;
+    reservei.day=day;
+    reservei.startHour=startHour;
+    reservei.endHour=endHour;
+        const result= await pool.query('INSERT INTO RESERVEI SET ? ',[reservei]);
+        console.log(result);
+        const reserveid=result.insertId;
+        const reservebd={};
+        reservebd.reserve=reserveid;
+        reservebd.type='I';
+        reservebd.device=idr;
+        await pool.query('INSERT INTO RESERVEBYDEVICE SET ?',[reservebd]);
+
+    console.log(r);
+
+
+});
+
+router.get('/practice/g', isLoggedIn, isStudent, async (req, res) => {
+    const r=await pool.query('SELECT * FROM GENERALDEVICE g JOIN SPECIFICDEVICE c WHERE g.type=3')
+   
+    
+    console.log(r);
+});
+
+
 module.exports = router;

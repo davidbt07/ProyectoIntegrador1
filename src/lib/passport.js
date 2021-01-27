@@ -17,7 +17,6 @@ passport.use('local.signin', new LocalStrategy({
 
 
     let user;
-    console.log(rows);
     if (rows.length > 0) {
         if (rows[0].role == role) {
             user = rows[0];
