@@ -52,14 +52,14 @@ router.post('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) =>
         podsAmount = null;
     }
     //Aquí hay que actualizar el cambio de practica, es decir, editar la tabla reservebydevice, agregarle o quitarle dispositivos
-    await pool.query('DELETE FROM RESERVEBYDEVICE WHERE reserve = ?', [id]);
+    await pool.query('DELETE FROM RESERVEBYDEVICE WHERE reserve = ? and type = `G` ', [id]);
     const students = await pool.query('SELECT COUNT(DISTINCT(student_id)) as cantidad FROM COURSE c JOIN ENROLLMENT e ON e.semester = c.semester and e.course = c.name and e.groupC = c.groupC WHERE c.name=? and c.semester = ? and c.groupC = ?',[course, semesters, groups]);
     const types = await pool.query('SELECT sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))GROUP BY sd.type ORDER BY sd.type ASC', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name]);
     for(const type in types){
         const devices = await pool.query('SELECT * FROM (SELECT sd.id, sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))ORDER BY sd.type ASC) d WHERE type = ? LIMIT ?', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name, `${types[type].type}`, students[0].cantidad + 1]);
         for(const dev in devices){
             console.log('insertando');
-            await pool.query('INSERT INTO RESERVEBYDEVICE(reserve, device) VALUES(?,?)', [id,  `${devices[dev].id}`]);
+            await pool.query('INSERT INTO RESERVEBYDEVICE(reserve, device, type) VALUES(?,?,?)', [id,  `${devices[dev].id}`], `G`);
         }
     }
     const newReserve = {
@@ -100,7 +100,7 @@ router.post('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
         const devices = await pool.query('SELECT * FROM (SELECT sd.id, sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))ORDER BY sd.type ASC) d WHERE type = ? LIMIT ?', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name, `${types[type].type}`, students[0].cantidad + 1]);
         for(const dev in devices){
             console.log('insertando');
-            await pool.query('INSERT INTO RESERVEBYDEVICE(reserve, device) VALUES(?,?)', [reserve[0].id,  `${devices[dev].id}`]);
+            await pool.query('INSERT INTO RESERVEBYDEVICE(reserve, device, type) VALUES(?,?,?)', [reserve[0].id,  `${devices[dev].id}`, `G`]);
         }
     }
     req.flash('success', 'RESERVA CREADA EXITOSAMENTE');
