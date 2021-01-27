@@ -1,0 +1,61 @@
+<div class="container p-4">
+    <div class="row">
+        <div class="col-md-4 mx-auto">
+            <div class="card text-center">
+                <div class="card-header">
+                    <h3>Registro</h3>
+                </div>
+                <div class="card-body">
+                    <form action="/signupcode" method="post">
+
+                        <div class="form-group">
+                            <input type="number" name="id" placeholder="ID" class="form-control" autofocus />
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="fullname" placeholder="Nombre completo" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="email" id="email" placeholder="Correo udea" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <a onclick="sendCode()" class="btn btn-success btn-block">Enviar código</a>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="code" placeholder="Código de verificación" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="username" placeholder="Usuario" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="password" placeholder="Contraseña" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-success btn-block">Registrar</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function sendCode() {
+        const email = $('#email').val();
+
+        $.ajax({
+            url:'/auth/sendcode/'+email,
+            success: function () {
+               alert("enviado")
+            }
+
+        });
+
+
+    }
+
+</script>

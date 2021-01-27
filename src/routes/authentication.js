@@ -1,7 +1,11 @@
 const express = require('express');
+const helpers = require ('../lib/helpers');
+const nodemailer = require("nodemailer");
 const router = express.Router();
 const passport=require('passport');
+require('dotenv').config();
 const { isNotLoggedIn, isLoggedIn } = require('../lib/auth');
+const pool = require('./../database');
 
 router.get('/', isNotLoggedIn, (req, res) => {
     res.redirect('/signin');
@@ -15,6 +19,10 @@ router.get('/teacher', isNotLoggedIn, (req, res) => {
 
 router.get('/signup', isNotLoggedIn, (req, res) => {
     res.render('auth/signup');
+});
+
+router.get('/signupcode', isNotLoggedIn, (req, res) => {
+    res.render('auth/signupCode');
 });
 
 router.get('/signin', isNotLoggedIn,(req, res) => {
@@ -69,10 +77,17 @@ router.get('/role', isLoggedIn, (req, res) => {
 
 
 router.post('/signup', isNotLoggedIn, passport.authenticate('local.signup', {
-    succesRedirect: '/admin',
+    succesRedirect: '/',
     failureRedirect: '/signup',
     failureFlash: true
 }));
+
+router.post('/signupcode', isNotLoggedIn, passport.authenticate('local.signupcode', {
+    succesRedirect: '/admin',
+    failureRedirect: '/signupcode',
+    failureFlash: true
+}));
+
 
 router.get('/logout', (req, res) => {
     req.logOut();
@@ -81,7 +96,59 @@ router.get('/logout', (req, res) => {
 });
 
 
+router.get('/sendcode/:email',async (req, res) => {
+    
+    const {email}=req.params;
+    const emailLength=email.length;
 
+    if(emailLength>12){
+    emailService=email.substring(emailLength-11,emailLength);
+
+    if(emailService=='udea.edu.co'){
+
+    console.log(emailService);
+     var max=9;
+     var min=0;
+     var ale='';
+    for(var i=0;i<7;i++){
+    var current=Math.round(Math.random() * (max - min) + min);
+    ale+=current.toString();
+    }
+    var GENERATEDCODE={};
+    GENERATEDCODE.code =ale;
+    GENERATEDCODE.email=email;
+    console.log(process.env.email)
+    await pool.query('INSERT INTO GENERATEDCODE SET?',[GENERATEDCODE])
+
+    let transporter = await nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.email, // generated ethereal user
+            pass: process.env.email_password, // generated ethereal password
+        },
+    });
+     await transporter.sendMail({
+         from: "Vitual_lab Telematica", // sender address
+         to: [email], // list of receivers
+         subject: 'Código de verificación', // Subject line
+         text: 'Su código de verificación en Virtual lab telemática es: '+ale, // plain text body
+    
+    }, (error, info) => {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log(info)
+            }
+        }         
+            );
+
+    }
+}
+
+
+ 
+ res.json('');
+});
   
 
 
