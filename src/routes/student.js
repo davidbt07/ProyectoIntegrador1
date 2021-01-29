@@ -38,29 +38,81 @@ router.get('/practice/gdevicesfortype/:typ', isLoggedIn, isStudent, async (req, 
 });
 
 router.post('/practice/add/', isLoggedIn, isStudent,async (req, res) => {
-   const{day,startHour,type,endHour}=req.body;
-   console.log(req.body);
-    const r=await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))',[type,type,day,startHour,endHour,startHour,endHour,type,day,startHour,endHour,startHour,endHour])
-    await console.log(r);
+   const{day,startHour,type,endHour,id}=req.body;
+    console.log(id);
+    var result={};
+    if(id==-1){
+        const r=await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))',[type,type,day,startHour,endHour,startHour,endHour,type,day,startHour,endHour,startHour,endHour])
+        
+        if(r.length!=0){
+        const idr=r[0].id;
+       
+        
+        const reservei={};
+        reservei.user=req.student.id;
+        reservei.day=day;
+        reservei.startHour=startHour;
+        reservei.endHour=endHour;
+             result= await pool.query('INSERT INTO RESERVEI SET ? ',[reservei]);
+           
+            const reserveid=result.insertId;
+            const reservebd={};
+            reservebd.reserve=reserveid;
+            reservebd.type='I';
+            reservebd.device=idr;
+            await pool.query('INSERT INTO RESERVEBYDEVICE SET ?',[reservebd]);
+            console.log(idr);
+        result=await pool.query('SELECT s.id,g.name,g.ports,g.type FROM SPECIFICDEVICE s INNER JOIN GENERALDEVICE g ON s.type=g.id WHERE s.id=?',[idr]);
+        result[0].pid=reserveid;    
+    }else{
+            result.result=0;
+        }
+        console.log(result[0]);
+  
+    }else{
+        
+        const r=await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))',[type,type,day,startHour,endHour,startHour,endHour,type,day,startHour,endHour,startHour,endHour])
+       
+        if(r.length!=0){
+        const idr=r[0].id;
+            const reservebd={};
+            reservebd.reserve=id;
+            reservebd.type='I';
+            reservebd.device=idr;
+            await pool.query('INSERT INTO RESERVEBYDEVICE SET ?',[reservebd]);
+        result=await pool.query('SELECT s.id,g.name,g.ports,g.type FROM SPECIFICDEVICE s INNER JOIN GENERALDEVICE g ON s.type=g.id WHERE s.id=?',[idr]);
+        result[0].pid=id;   
+    }else{
+            result.result=0;
+        }
+    }
+   /*const r=await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))',[type,type,day,startHour,endHour,startHour,endHour,type,day,startHour,endHour,startHour,endHour])
+    var result={};
+    if(r.length!=0){
     const idr=r[0].id;
    
+    
     const reservei={};
     reservei.user=req.student.id;
     reservei.day=day;
     reservei.startHour=startHour;
     reservei.endHour=endHour;
-        const result= await pool.query('INSERT INTO RESERVEI SET ? ',[reservei]);
-        console.log(result);
+        var result= await pool.query('INSERT INTO RESERVEI SET ? ',[reservei]);
+       
         const reserveid=result.insertId;
         const reservebd={};
         reservebd.reserve=reserveid;
         reservebd.type='I';
         reservebd.device=idr;
         await pool.query('INSERT INTO RESERVEBYDEVICE SET ?',[reservebd]);
-
-    console.log(r);
-
-
+        console.log(idr);
+    result=await pool.query('SELECT s.id,g.name,g.ports,g.type FROM SPECIFICDEVICE s INNER JOIN GENERALDEVICE g ON s.type=g.id WHERE s.id=?',[idr]);
+    }else{
+        result.result=0;
+    }
+    console.log(result[0]);*/
+  
+res.json(result);
 });
 
 router.get('/practice/g', isLoggedIn, isStudent, async (req, res) => {

@@ -145,7 +145,7 @@ INSERT INTO COURSE(name, groupC, semester, teacher_id, role) VALUES('Comunicacio
 
 
 INSERT INTO PRACTICE(name, description, pods, teacher_id, role) values('vlans', 'Uso de vlans', true, 0, 'profesor');
-INSERT INTO RESERVEG(id_practice, course, semester, groupC, day, startHour, endHour, podsAmount) values(2, 'Comunicaciones y lab I','2020-1', '1', '2020/10/25', 00-00-12, 00-00-14, 4);
+INSERT INTO RESERVEG(id_practice, course, semester, groupC, day, startHour, endHour, podsAmount) values(2, 'Comunicaciones y lab I','2020-1', '1', '2020/10/25', '12-00-00', '14-00-00', 4);
 
 
 INSERT INTO SPECIFICDEVICE(id, state, type)VALUES(1,'DISPONIBLE',1);
