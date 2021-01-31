@@ -1,0 +1,150 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                    <h2>Profesor {{teacher.fullname}}</h2>
+                    </br>
+                    <h4>Añadir dispositivos a reserva</h4>
+                </div>
+                <div>
+                    <div class="container p-4">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mx-auto">
+                            <div class="container p-4">
+                                <br>
+
+                                <form action="/teacher/singlePractice/booknext" method="post">
+                                    <div class="form-group">
+                                        <p style="color: white;"><em> Tipo Dispositivo: </em></p>
+                                        <select id="types" name="types" onchange="selecttype()">
+                                            <option value="null">Seleccione Tipo</option>
+                                            {{#each gtypes}}
+                                            <option value="{{id}}">{{name}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="gdevices">Elige dispositivo</label>
+                                        <select name="gdevices" id="gdevices">
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-outline-primary mt-3 ml-2"
+                                            onclick="add()">Añadir
+                                            Dispositivo</button>
+                                    </div>
+                                    <div class="form-group">
+
+                                        <input type="text" class="form-control" name="id" id="id" value="{{id}}"
+                                            hidden />
+
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container p-4">
+        <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
+
+            <table class="table table-sm table-dark table-hover" id="tableD">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Dispositivo</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">N&uacute;mero puertos</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+
+<script>
+
+        function add() {
+            const id = $("#id").val();
+            const typ = $("#gdevices").val();
+            const day = $("#day").val();
+            const startHour = $("#startHour").val();
+            const endHour = $("#endHour").val();
+
+            $.ajax({
+                type: 'post', // la variable type guarda el tipo de la peticion GET,POST,..
+                url: '/teacher/singlePractice/bookDevice', //url guarda la ruta hacia donde se hace la peticion
+                data: { day: day, startHour: startHour, type: typ, endHour: endHour, id: id }, // data recive un objeto con la informacion que se enviara al servidor
+                success: function (result) { //success es una funcion que se utiliza si el servidor retorna informacion
+                    if (result[0].result != 0) {
+                        console.log('id' + $("#id").val() + 'k' + result[0].pid);
+                        result.forEach(d => {
+                            $('#tableD').append(`<tr table-active id="${d.id}">
+
+                        <td>${d.id}</td>
+                        <td>${d.name}</td>
+                        <td>${d.type}</td>
+                        <td>${d.ports}</td>
+
+                        <td>
+
+                            <a title="Eliminar" onclick="deleteDevice(${d.id})" class="text-decoration-none">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash"
+                                    fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                    <path fill-rule="evenodd"
+                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>`);
+                        });
+                    } else {
+                        alert('Dispositivo no disponible')
+                    }
+
+                } // El tipo de datos esperados del servidor. Valor predeterminado: Intelligent Guess (xml, json, script, text, html).
+            })
+
+
+        }
+
+        function selecttype() {
+            const typ = $("#types").val();
+            $.ajax({
+                url: '/teacher/practice/add/gdevicesfortype/' + typ,
+                success: function (gDevices) {
+
+                    $('#gdevices').html('');
+                    $('#gdevices').append(`<option>
+                                       Seleccione
+                                  </option>`);
+
+
+                    gDevices.forEach(gdevice => {
+
+                        $('#gdevices').append(`<option value="${gdevice.id}">
+                                       ${gdevice.name}
+                                  </option>`);
+
+                    });
+
+                    console.log(gDevices);
+                }
+
+            });
+
+        }
+
+</script>

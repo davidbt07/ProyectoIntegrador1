@@ -14,13 +14,12 @@ router.get('/reserve/list', isLoggedIn, isTeacher, async (req, res) => {
     res.render('teacher/reservesList', { reserves });
 });
 
-//Por editar
 router.get('/reserve/list/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     const reserve = await pool.query('SELECT * FROM RESERVEG WHERE id=?', [id]);
     const practice = await pool.query('SELECT * FROM PRACTICE p WHERE p.id = ?', [reserve[0].id_practice]);
-    const devices = await pool.query('SELECT gd.name as name, gt.name as type,COUNT(*) as amount, gd.ports as ports FROM RESERVEG rg JOIN RESERVEBYDEVICE rd ON rg.id = rd.reserve JOIN SPECIFICDEVICE sd ON sd.id = rd.device JOIN GENERALDEVICE gd ON sd.type = gd.id JOIN GENERALTYPE gt ON gd.type = gt.id WHERE rg.id = ? GROUP BY gt.id', [id]);
-    res.render('teacher/zoominReservesList', { practice: practice[0], devices });
+    //const devices = await pool.query('SELECT gd.name as name, gt.name as type,COUNT(*) as amount, gd.ports as ports FROM RESERVEG rg JOIN RESERVEBYDEVICE rd ON rg.id = rd.reserve JOIN SPECIFICDEVICE sd ON sd.id = rd.device JOIN GENERALDEVICE gd ON sd.type = gd.id JOIN GENERALTYPE gt ON gd.type = gt.id WHERE rg.id = ? GROUP BY gt.id', [id]);
+    res.render('teacher/zoominReservesList', { practice: practice[0], reserve: reserve[0] });
 });
 
 router.get('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) => {
@@ -51,15 +50,14 @@ router.post('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) =>
     if(tempPractice[0].pods == null){
         podsAmount = null;
     }
-    //Aquí hay que actualizar el cambio de practica, es decir, editar la tabla reservebydevice, agregarle o quitarle dispositivos
-    await pool.query('DELETE FROM RESERVEBYDEVICE WHERE reserve = ? and type = `G` ', [id]);
+    await pool.query('DELETE FROM RESERVEBYDEVICE WHERE reserve = ? and type = ? ', [id, 'G']);
     const students = await pool.query('SELECT COUNT(DISTINCT(student_id)) as cantidad FROM COURSE c JOIN ENROLLMENT e ON e.semester = c.semester and e.course = c.name and e.groupC = c.groupC WHERE c.name=? and c.semester = ? and c.groupC = ?',[course, semesters, groups]);
     const types = await pool.query('SELECT sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))GROUP BY sd.type ORDER BY sd.type ASC', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name]);
     for(const type in types){
         const devices = await pool.query('SELECT * FROM (SELECT sd.id, sd.type FROM PRACTICE p JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice JOIN GENERALDEVICE gd ON gd.id = dp.device JOIN SPECIFICDEVICE sd ON sd.type = gd.id WHERE p.id = ? and sd.id NOT IN (SELECT sd.id FROM RESERVEBYDEVICE rd JOIN SPECIFICDEVICE sd ON sd.id = rd.device  JOIN RESERVEG rg ON rg.id = rd.reserve JOIN PRACTICE p ON p.id = rg.id_practice JOIN DEVICEBYPRACTICE dp ON dp.practice = p.id JOIN GENERALDEVICE gd ON gd.id = dp.device  WHERE (rg.day = ?) AND ((rg.startHour BETWEEN ? AND ?) OR (rg.endHour BETWEEN ? AND ?)) AND (sd.state = ?) AND (p.id = ?) AND (sd.type = gd.id))ORDER BY sd.type ASC) d WHERE type = ? LIMIT ?', [name, day, startHour, endHour, startHour, endHour, 'DISPONIBLE', name, `${types[type].type}`, students[0].cantidad + 1]);
         for(const dev in devices){
             console.log('insertando');
-            await pool.query('INSERT INTO RESERVEBYDEVICE(reserve, device, type) VALUES(?,?,?)', [id,  `${devices[dev].id}`], `G`);
+            await pool.query('INSERT INTO RESERVEBYDEVICE(reserve, device, type) VALUES(?,?,?)', [id,  `${devices[dev].id}`, 'G']);
         }
     }
     const newReserve = {
@@ -108,7 +106,6 @@ router.post('/reserve/create', isLoggedIn, isTeacher, async (req, res) => {
 });
 
 router.get('/practice/list', isLoggedIn, isTeacher, async (req, res) => {
-    //Un profesor tiene unas practicas, por lo cual falta unir eso en el modelo entidad relacion.
     var practices = await pool.query('SELECT p.id ,p.name, p.pods, COUNT(dp.practice) as cantidad FROM PRACTICE p LEFT JOIN DEVICEBYPRACTICE dp ON p.id = dp.practice WHERE p.teacher_id = ? and p.role = ? GROUP BY p.id ,p.name, p.pods', [req.teacher.id, role]);
     Object.keys(practices).forEach(practice => {
         if(practices[practice].pods == true){
@@ -200,6 +197,24 @@ router.post('/practice/list/edit/:id', isLoggedIn, isTeacher, async (req, res) =
     res.redirect('/teacher/practice/list');
 });
 
+//Individuales
+router.get('/singlePractice/add', isLoggedIn, isTeacher,(req, res) =>{
+    res.render('teacher/createSinglePractice');
+});
+
+router.post('/singlePractice/add', isTeacher, isLoggedIn, async (req, res) => {
+    const { day, startHour, endHour } = req.body;
+    const reservei = {};
+    reservei.user = req.teacher.id;
+    reservei.day = day;
+    reservei.startHour = startHour;
+    reservei.endHour = endHour;
+    const result = await pool.query('INSERT INTO RESERVEI SET ? ', [reservei]);
+    const id = result.insertId;
+    const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
+    res.render('teacher/createSinglePracticeNext', { id, gtypes });
+});
+
 //Rutas ajax
 router.get('/practice/add/gdevicesfortype/:typ', isLoggedIn, isTeacher, async (req, res) => {
     const { typ } = req.params;
@@ -280,4 +295,31 @@ router.get('/reserve/create/verify/:info', isLoggedIn, isTeacher, async (req, re
     res.json(bander);
 });
 
+//Ajax individuales
+router.post('/singlePractice/bookDevice', isLoggedIn, isTeacher, async (req, res) => {
+    const { type, id } = req.body;
+    console.log(req.body);
+    
+    const reservei = await pool.query('SELECT * FROM RESERVEI WHERE id=?', [id]);
+    console.log(reservei);
+    const day = reservei[0].day;
+    const startHour = reservei[0].startHour;
+    const endHour = reservei[0].endHour;
+    const r = await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))', [type, type, day, startHour, endHour, startHour, endHour, type, day, startHour, endHour, startHour, endHour])
+    
+    if (r.length != 0) {
+        const idr = r[0].id;
+        const reservebd = {};
+        reservebd.reserve = id;
+        reservebd.type = 'I';
+        reservebd.device = idr;
+        await pool.query('INSERT INTO RESERVEBYDEVICE SET ?', [reservebd]);
+        result=await pool.query('SELECT s.id,g.name,g.ports,g.type FROM SPECIFICDEVICE s INNER JOIN GENERALDEVICE g ON s.type=g.id WHERE s.id=?',[idr]);
+        result[0].result=1;
+    }else{
+        result[0].result=0;
+    }
+    res.json(result);
+
+});
 module.exports = router;

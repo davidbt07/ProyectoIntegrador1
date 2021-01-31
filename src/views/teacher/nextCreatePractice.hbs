@@ -1,49 +1,42 @@
 <div class="container">
     <div class="row">
-        <div class="md-12 mx-auto">
-            <div class="justify-content-center">
+        <div class="col-md-4 mx-auto">
+            <div class="text-center">
                 <div class="presentation">
                     <h2>Profesor {{teacher.fullname}}</h2>
                     </br>
                     <h4>Crear Pr&aacute;ctica: {{name}}</h4>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="md-12 mx-auto">
-            <div class="justify-content-center">
-                <br>
+            
                 <form action="/teacher/practice/add/next/confirm" method="post">
-                    <div class="form-group row">
+                    <div class="form-group">
                         <p style="color: white;" for="tipo"><em> Tipo Dispositivo: </em></p>
-                        <select name="tipo" id="tipo" class="form-control mt-2 bg-primary" onchange="selecttype()">
+                        <select name="tipo" id="tipo" class="form-control bg-primary" onchange="selecttype()">
                             <option value="null">Seleccione Tipo</option>
                             {{#each types}}
                             <option value="{{id}}">{{name}}</option>
                             {{/each}}
                         </select>
                     </div>
-                    <div class="form-group row">
+                    <div class="form-group">
                         <p style="color: white;" for="gdevices"><em> Nombre Dispositivo: </em></p>
-                        <select name="gdevices" id="gdevices" class="form-control mt-2 bg-primary">
+                        <select name="gdevices" id="gdevices" class="form-control bg-primary">
                         </select>
                     </div>
-                    <div class="form-group row justify-content-center" id="button2">
+                    <div class="form-group" id="button2">
                         <button id="addButton" type="button" class="btn btn-outline-primary">Añadir
                             Dispositivo</button>
                     </div>
-                    <div class="form-group row justify-content-center">
+                    <div class="form-group">
                         <button class="btn btn-outline-warning" id="cancelButton" type="button">Cancelar</button>
                     </div>
-                    <div class="form-group row justify-content-center">
+                    <div class="form-group">
                         <button class="btn btn-outline-success" type="submit">Crear</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
     <div class="row">
         <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
             <table class="table table-sm table-dark table-hover" id="tableD">
