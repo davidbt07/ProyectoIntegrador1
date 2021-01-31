@@ -58,8 +58,7 @@ passport.use('local.signup', new LocalStrategy({
         'username': username,
         'password': passwordlis
     }).catch(e => {
-
-
+        return done(null, false, req.flash('message', 'Usuario y/o contraseña LIS incorrecta'));
     });
 
     const u = a.data;

@@ -5,7 +5,7 @@
                 <div class="presentation">
                     <h2>ADMIN {{admin.fullname}}</h2>
                     </br>
-                    <h5>ENCENDER DISPOSITIVO</h5>
+                    <h5>GESTIÓN DISPOSITIVO</h5>
                 </div>
             </div>
         </div>
@@ -16,7 +16,7 @@
     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 col-xl-5 mx-auto">
         <div class="form-check form-switch">
             <input class="form-check-input" onchange="changeState()" type="checkbox" id="flexSwitchCheckDefault">
-            <label class="form-check-label" for="flexSwitchCheckDefault">Encender dispositivo</label>
+            <label class="form-check-label" id="text" for="flexSwitchCheckDefault">Encender dispositivo</label>
         </div>
     </div>
 </div>
@@ -26,16 +26,17 @@
     function changeState() {
 $("#flexSwitchCheckDefault").prop( "disabled", true );
         var c = $("#flexSwitchCheckDefault").is(':checked');
+        $("#text").html('Apagar dispositivo');
         var typ = "off";
-        var message = "apagó";
+       
         if (c) {
             typ = "on";
-            message = "encendió";
         }
 
         $.ajax({
             url: 'turn/' + typ,
             success: function () {
+                  $("#text").html('Encender dispositivo');
                 alert("¡El dispositivo se " + message + " exitosamente!");
                 $("#flexSwitchCheckDefault").prop( "disabled", false );
             }

@@ -159,7 +159,7 @@
     function selecttype() {
         const typ = $("#types").val();
         $.ajax({
-            url: 'gdevicesfortype/' + typ,
+            url: '/admin/gdevicesfortype/' + typ,
             success: function (gDevices) {
 
                 $('#gdevices').html('');
