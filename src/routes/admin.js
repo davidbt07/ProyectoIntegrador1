@@ -67,11 +67,77 @@ router.get('/delete/:id', isLoggedIn, isAdmin, async (req, res) => {
     req.flash('success', 'DISPOSITIVO ELIMINADO EXITOSAMENTE');
     res.redirect('/admin');
 });
+router.get('/reserve/list/zoomin/:id',isLoggedIn,isAdmin,async(req,res)=>{
+    const {id}=req.params;
+    devices=await pool.query('SELECT gd.name,gd.ports,gt.name as type,gd.id FROM RESERVEI ri INNER JOIN RESERVEBYDEVICE rbd ON ri.id=rbd.reserve INNER JOIN SPECIFICDEVICE sd ON sd.id=rbd.device INNER JOIN GENERALDEVICE gd ON gd.id=sd.type INNER JOIN GENERALTYPE gt ON gd.type=gt.id WHERE ri.id=?',[id]);
+    
+res.render('admin/zoominReservesList',{devices});
+});
+router.get('/reserve/delete/:id',isLoggedIn,isAdmin,async(req,res)=>{
+  const {id}=req.params;
+   await pool.query('DELETE FROM RESERVEBYDEVICE WHERE RESERVE=?',[id]);
+   await pool.query('DELETE FROM RESERVEI WHERE ID=?',[id]);
+   res.json('');
+
+});
+
+router.get('/practice/reservelist',isLoggedIn,isAdmin,async(req,res)=>{
+    const practices= await pool.query('SELECT * FROM RESERVEI WHERE USER=?',[req.admin.id]);
+    res.render('admin/listPractice',{practices})
+});
+
+router.get('/practice/book', isLoggedIn, isAdmin, async (req, res) => {
+
+    res.render('admin/bookPractice');
+});
+
+router.post('/practice/add', isLoggedIn, isAdmin, async (req, res) => {
+    const { type, id } = req.body;
+    console.log(req.body);
+    
+    const reservei = await pool.query('SELECT * FROM RESERVEI WHERE id=?', [id]);
+    console.log(reservei);
+    const day = reservei[0].day;
+    const startHour = reservei[0].startHour;
+    const endHour = reservei[0].endHour;
+    const r = await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))', [type, type, day, startHour, endHour, startHour, endHour, type, day, startHour, endHour, startHour, endHour])
+
+    if (r.length != 0) {
+        const idr = r[0].id;
+        const reservebd = {};
+        reservebd.reserve = id;
+        reservebd.type = 'I';
+        reservebd.device = idr;
+        await pool.query('INSERT INTO RESERVEBYDEVICE SET ?', [reservebd]);
+        result=await pool.query('SELECT s.id,g.name,g.ports,g.type FROM SPECIFICDEVICE s INNER JOIN GENERALDEVICE g ON s.type=g.id WHERE s.id=?',[idr]);
+        result[0].result=1;
+    }else{
+        result[0].result=0;
+    }
+    res.json(result);
+
+})
+
+router.post('/practice/book/', isLoggedIn, isAdmin, async (req, res) => {
+    const { day, startHour, endHour } = req.body;
+    const reservei = {};
+    reservei.user = req.admin.id;
+    reservei.day = day;
+    reservei.startHour = startHour;
+    reservei.endHour = endHour;
+    const result = await pool.query('INSERT INTO RESERVEI SET ? ', [reservei]);
+    const id = result.insertId;
+    const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
+    res.render('admin/bookPracticeNext', { id, gtypes })
+});
 
 router.get('/deletes/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { id } = req.params;
     var idg = await pool.query('SELECT type FROM SPECIFICDEVICE WHERE ID=?', [id]);
     r = idg[0].type;
+    gDevice=await pool.query('SELECT * FROM GENERALDEVICE WHERE id=?',[r]);
+    nDevices=gDevice[0].amount;
+    await pool.query('UPDATE GENERALDEVICE SET amount=? WHERE id=?',[(nDevices-1),r]);
 
     await pool.query('DELETE FROM SPECIFICDEVICE WHERE ID=?', [id]);
     req.flash('success', 'DISPOSITIVO ELIMINADO EXITOSAMENTE');
