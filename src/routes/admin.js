@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { isLoggedIn, isAdmin } = require('../lib/auth');
 const pool = require('./../database');
-const awaitHandlerFactory = require('../middleware/awaitHandlerFactory.middleware');
-const gDeviceController = require('../controller/gdevice.controller');
+//const awaitHandlerFactory = require('../middleware/awaitHandlerFactory.middleware');
+//const gDeviceController = require('../controller/gdevice.controller');
 
 
 const fs = require('fs')
@@ -49,7 +49,9 @@ router.post('/add', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 router.get('/',isLoggedIn, isAdmin,async (req, res) => {
-    const gDevices = await gDeviceController.getAllGDevices();
+    //const gDevices = await gDeviceController.getAllGDevices();
+    let gDevices =await pool.query("SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type");
+  
     res.render('admin/listgDevices', { gDevices });
 });
 

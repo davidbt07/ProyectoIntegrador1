@@ -1,0 +1,50 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                    <h2>Estudiante {{student.fullname}}</h2>
+                    </br>
+                    <h4>Reservar Pr&aacute;ctica</h4>
+                </div>
+                <div>
+                    <div class="container p-4">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mx-auto">
+
+
+
+                            <br>
+                            <form action="/student/practice/book" method="post">
+
+                                <div class="form-group">
+                                    <input type="text" name="id" id="id" class="form-control" value="-1" hidden>
+                                </div>
+                                <div class="form-group">
+                                    <p style="color: white;"><em>Día: </em></p>
+                                    <input type="date" name="day" id="day" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <p style="color: white;"><em>Hora inicio: </em></p>
+                                    <input type="time" name="startHour" id="startHour" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <p style="color: white;"><em>Hora fin: </em></p>
+                                    <input type="time" name="endHour" id="endHour" class="form-control">
+                                </div>
+                                <div class="col-md-7 mx-auto">
+
+                                    <div class="form-group">
+                                        <button class="btn btn-success btn-block">Crear práctica</button>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
