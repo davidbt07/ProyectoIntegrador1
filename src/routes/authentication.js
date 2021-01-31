@@ -75,11 +75,13 @@ router.get('/role', isLoggedIn, (req, res) => {
 });
 
 
-router.post('/signup', isNotLoggedIn, passport.authenticate('local.signup', {
-    succesRedirect: '/',
-    failureRedirect: '/signup',
-    failureFlash: true
-}));
+router.post('/signup', isNotLoggedIn, (req, res, next) => {
+    passport.authenticate('local.signup', {
+        successRedirect: '/role',
+        failureRedirect: '/signup',
+        failureFlash: true
+    })(req, res, next);
+});
 
 router.post('/signupcode', isNotLoggedIn, passport.authenticate('local.signupcode', {
     succesRedirect: '/admin',

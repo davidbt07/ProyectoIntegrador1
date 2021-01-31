@@ -1,4 +1,4 @@
-const GDeviceModel = require('../models/gdevice.model');
+/*const GDeviceModel = require('../models/gdevice.model');
 
 class GDeviceController {
     getAllGDevices = async (req, res, next) => {
@@ -7,4 +7,4 @@ class GDeviceController {
     };
 
 }
-module.exports = new GDeviceController;
+module.exports = new GDeviceController;*/

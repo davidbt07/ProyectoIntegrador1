@@ -1,4 +1,4 @@
-const pool = require('./../database');
+/*const pool = require('./../database');
 class GDeviceModel {
     
     find = async (params = {},redirect) => {
@@ -6,4 +6,4 @@ class GDeviceModel {
         return  pool.query(sql);
     }
 }
-module.exports = new GDeviceModel;
+module.exports = new GDeviceModel;*/
