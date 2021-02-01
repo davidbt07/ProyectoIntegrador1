@@ -300,11 +300,27 @@ router.get('/reserve/create/verify/:info', isLoggedIn, isTeacher, async (req, re
     res.json(bander);
 });
 
+router.get('/reserve/singlereserve/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
+    const { id } = req.params;
+const    devices = await pool.query('SELECT gd.name,gd.ports,gt.name as type,gd.id FROM RESERVEI ri INNER JOIN RESERVEBYDEVICE rbd ON ri.id=rbd.reserve INNER JOIN SPECIFICDEVICE sd ON sd.id=rbd.device INNER JOIN GENERALDEVICE gd ON gd.id=sd.type INNER JOIN GENERALTYPE gt ON gd.type=gt.id WHERE ri.id=?', [id]);
+
+    res.render('teacher/zoominSingleReservesList', { devices });
+});
+
+
+router.get('/gdetails/:id', isLoggedIn, isTeacher, async (req, res) => {
+    const { id } = req.params;
+    const gDevice = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.id=?', [id]);
+    const sDevices = await pool.query('SELECT * FROM (SELECT id as sid,state, type from SPECIFICDEVICE) sd JOIN GENERALDEVICE g WHERE sd.type=g.id and g.id=?', [id]);
+
+    res.render('student/gDeviceDetails', { gDevice: gDevice[0], sDevices });
+});
+
 //Ajax individuales
 router.post('/singlePractice/bookDevice', isLoggedIn, isTeacher, async (req, res) => {
     const { type, id } = req.body;
     console.log(req.body);
-    
+    var result=[{}];
     const reservei = await pool.query('SELECT * FROM RESERVEI WHERE id=?', [id]);
     console.log(reservei);
     const day = reservei[0].day;
