@@ -136,7 +136,7 @@ INSERT INTO GENERALTYPE(name) VALUES ("SWL3");
 INSERT INTO GENERALTYPE(name) VALUES ("SWL2");
 INSERT INTO GENERALTYPE(name) VALUES ("ROUTER");
 INSERT INTO GENERALTYPE(name) VALUES ("PC");
-
+INSERT INTO GENERALTYPE(name) VALUES ("-");
 INSERT INTO GENERALDEVICE(id,name,type,description,amount,ports) VALUES (1,'Microtik',1,'Switche de nivel 3',10,20);
 INSERT INTO GENERALDEVICE(id,name,type,description,amount,ports) VALUES (2,'Switch',2,'Switche de nivel 2',9,18);
 

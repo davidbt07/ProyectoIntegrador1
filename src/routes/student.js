@@ -10,7 +10,8 @@ router.get('/', (req, res) => {
 
 router.get('/practice/list', isLoggedIn, isStudent, async (req, res) => {
     const practices = await pool.query('SELECT r.id, r.id_practice, r.course, r.day, r.startHour, r.endHour, p.name, p.pods FROM RESERVEG r INNER JOIN PRACTICE p ON r.id_practice = p.id;');
-    res.render('student/practicesList', { practices });
+    const practicesi= await pool.query('SELECT * FROM RESERVEI WHERE USER=?', [req.student.id]);
+    res.render('student/practicesList', { practices,practicesi });
 });
 
 router.get('/practice/list/zoomin/:id', isLoggedIn, isStudent, async (req, res) => {
@@ -63,6 +64,29 @@ router.post('/practice/add', isLoggedIn, isStudent, async (req, res) => {
     res.json(result);
 
 })
+
+router.get('/reserve/delete/:id', isLoggedIn, isStudent, async (req, res) => {
+    const { id } = req.params;
+    await pool.query('DELETE FROM RESERVEBYDEVICE WHERE RESERVE=?', [id]);
+    await pool.query('DELETE FROM RESERVEI WHERE ID=?', [id]);
+    res.json('');
+
+});
+
+router.get('/gdetails/:id', isLoggedIn, isStudent, async (req, res) => {
+    const { id } = req.params;
+    const gDevice = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.id=?', [id]);
+    const sDevices = await pool.query('SELECT * FROM (SELECT id as sid,state, type from SPECIFICDEVICE) sd JOIN GENERALDEVICE g WHERE sd.type=g.id and g.id=?', [id]);
+
+    res.render('student/gDeviceDetails', { gDevice: gDevice[0], sDevices });
+});
+
+router.get('/reserve/list/zoomin/:id', isLoggedIn, isStudent, async (req, res) => {
+    const { id } = req.params;
+    devices = await pool.query('SELECT gd.name,gd.ports,gt.name as type,gd.id FROM RESERVEI ri INNER JOIN RESERVEBYDEVICE rbd ON ri.id=rbd.reserve INNER JOIN SPECIFICDEVICE sd ON sd.id=rbd.device INNER JOIN GENERALDEVICE gd ON gd.id=sd.type INNER JOIN GENERALTYPE gt ON gd.type=gt.id WHERE ri.id=?', [id]);
+
+    res.render('student/zoominReservesList', { devices });
+});
 
 router.post('/practice/book/', isLoggedIn, isStudent, async (req, res) => {
     const { day, startHour, endHour } = req.body;

@@ -14,7 +14,16 @@
 
 <div class="container p-4">
     <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
-
+ <div class="row">
+        <div class="col-md-12 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                  
+                    <h6>Grupales</h6>
+                </div>
+            </div>
+        </div>
+    </div>
 
         <table class="display table-hover table-responsive" id="table_id">
 
@@ -70,23 +79,8 @@
                             </svg>
                         </a>
 
-                        <a href="/student/practice/list/edit/{{id}}" title="editPractice" class="text-decoration-none">
-                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                            </svg>
-                        </a>
-
-                        <a href="/student/practice/remove/{{id}}" title="Eliminar" class="text-decoration-none">
-                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                <path fill-rule="evenodd"
-                                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                            </svg>
-                        </a>
+                       
+                        
 
 
 
@@ -117,4 +111,114 @@
 
     </div>
 
+
+
+  <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
+
+<div class="row">
+        <div class="col-md-12 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+                  
+                    <h6>Individuales</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <table class="display table-hover table-responsive" id="table_id2">
+            <thead>
+                <tr>
+
+                    <th>Dia</th>
+                    <th>Hora de inicio</th>
+                    <th>Hora final</th>
+                    <th></th>
+
+                </tr>
+
+            </thead>
+            <tbody>
+
+                {{#each practicesi}}
+
+                <tr id="{{id}}">
+
+                    <td>{{day}}</td>
+                    <td>{{startHour}}</td>
+                    <td>{{endHour}}</td>
+
+                    <td>
+
+                        <a href="/student/reserve/list/zoomin/{{id}}" title="zoominPractice" class="text-decoration-none">
+
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-plus-circle"
+                                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                <path fill-rule="evenodd"
+                                    d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                            </svg>
+                        </a>
+                         <a href="/student/reserve/start/{{id}}" title="play" class="text-decoration-none">
+
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-collection-play"
+                                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M14.5 13.5h-13A.5.5 0 0 1 1 13V6a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5zm-13 1A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5h-13zM2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3zm2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1z" />
+                                <path fill-rule="evenodd"
+                                    d="M6.258 6.563a.5.5 0 0 1 .507.013l4 2.5a.5.5 0 0 1 0 .848l-4 2.5A.5.5 0 0 1 6 12V7a.5.5 0 0 1 .258-.437z" />
+                            </svg>
+                        </a>
+
+                        <a onclick="deleteD({{id}})"  title="Eliminar" class="text-decoration-none">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                <path fill-rule="evenodd"
+                                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                            </svg>
+                        </a>
+
+
+
+                    </td>
+                </tr>
+
+                {{/each}}
+                
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th>Dia</th>
+                    <th>Hora de inicio</th>
+                    <th>Hora final</th>
+                    <th></th>
+
+
+                </tr>
+            </tfoot>
+        </table>
+
+
+
+    </div>
+
+
+
+
 </div>
+
+<script >
+
+   const deleteD = function(id) {
+       $.ajax({
+           url: '/student/reserve/delete/' + id,
+            success: function() {
+                $(`#${id}`).remove();
+            }
+       });
+   }
+</script>
