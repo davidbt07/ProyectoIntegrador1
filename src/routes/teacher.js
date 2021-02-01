@@ -14,6 +14,11 @@ router.get('/reserve/list', isLoggedIn, isTeacher, async (req, res) => {
     res.render('teacher/reservesList', { reserves });
 });
 
+router.get('/reserve/singleReserves', isLoggedIn, isTeacher, async (req, res) => {
+    const sReserves = await pool.query('SELECT ri.day, ri.startHour, ri.endHour, ri.id FROM RESERVEI ri JOIN USER u ON ri.user = u.id WHERE u.id = ? and role = ?', [req.teacher.id, role]);
+    res.render('teacher/singleReservesList', { sReserves });
+});
+
 router.get('/reserve/list/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     const reserve = await pool.query('SELECT * FROM RESERVEG WHERE id=?', [id]);
@@ -306,7 +311,7 @@ router.post('/singlePractice/bookDevice', isLoggedIn, isTeacher, async (req, res
     const startHour = reservei[0].startHour;
     const endHour = reservei[0].endHour;
     const r = await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))', [type, type, day, startHour, endHour, startHour, endHour, type, day, startHour, endHour, startHour, endHour])
-    
+
     if (r.length != 0) {
         const idr = r[0].id;
         const reservebd = {};
@@ -321,5 +326,11 @@ router.post('/singlePractice/bookDevice', isLoggedIn, isTeacher, async (req, res
     }
     res.json(result);
 
+});
+
+router.get('/singleReserve/remove/:id', isLoggedIn, isTeacher, async (req, res) => {
+    const { id } = req.params;
+    await pool.query('DELETE FROM RESERVEI WHERE id = ?', [id]);
+    res.json('');
 });
 module.exports = router;

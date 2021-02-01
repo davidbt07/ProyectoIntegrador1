@@ -11,15 +11,13 @@
         </div>
     </div>
 </div>
-
 <div class="container">
     <div class="col-xs-10 col-sm-10 col-md-9 col-lg-10 col-xl-10 mx-auto">
+        <h3>Reservas Individuales</h3>
         <table class="table-hover table-responsive" id="table_id">
             <thead>
                 <tr>
 
-                    <th>Pr&aacute;ctica</th>
-                    <th>Curso</th>
                     <th>Día</th>
                     <th>Hora Inicio</th>
                     <th>Hora final</th>
@@ -30,12 +28,10 @@
             </thead>
             <tbody>
 
-                {{#each reserves}}
+                {{#each sReserves}}
 
                 <tr id="{{id}}">
 
-                    <td>{{name}}</td>
-                    <td>{{course}}</td>
                     <td>{{day}}</td>
                     <td>{{startHour}}</td>
                     <td>{{endHour}}</td>
@@ -53,7 +49,7 @@
                             </svg>
                         </a>
 
-                        <a href="/teacher/reserve/list/zoomin/{{id}}" title="zoominPractice" class="text-decoration-none">
+                        <a href="/teacher/singleReserve/list/zoomin/{{id}}" title="zoominPractice" class="text-decoration-none">
 
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-plus-circle"
                                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -64,7 +60,7 @@
                             </svg>
                         </a>
 
-                        <a href="/teacher/reserve/list/edit/{{id}}" title="editPractice" class="text-decoration-none">
+                        <a href="/teacher/singleReserve/list/edit/{{id}}" title="editPractice" class="text-decoration-none">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"
@@ -93,8 +89,6 @@
 
             <tfoot>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Curso</th>
                     <th>Dia</th>
                     <TH>Hora inicio</TH>
                     <th>Hora final</th>
@@ -105,12 +99,11 @@
         </table>
     </div>
 </div>
-
 <script >
 
    const deleteR = function(id) {
        $.ajax({
-           url: '/teacher/reserve/remove/' + id,
+           url: '/teacher/singleReserve/remove/' + id,
             success: function() {
                 $(`#${id}`).remove();
             }

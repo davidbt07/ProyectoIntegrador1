@@ -19,12 +19,15 @@
     <li><a href="/admin/practice/reservelist"><i></i>Reservas realizadas</a></li>
     <li><a href="/admin/selectdevices"><i></i>Gestionar Dispositivo</a></li>
     {{else if teacher.fullname}}
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Grupal</a>
     <li><a href="/teacher/practice/list"><i></i>Lista Pr&aacute;cticas</a></li>
     <li><a href="/teacher/practice/add"><i></i>Crear Pr&aacute;ctica</a></li>
     <li><a href="/teacher/reserve/list"><i></i>Lista Reservas</a></li>
     <li><a href="/teacher/reserve/create"><i></i>Crear Reserva</a></li>
-    <li class="disabled">Individual </li>
-    <li><a href="/teacher/singlePractice/add"><i></i>Reserva Individual</a></li>
+    <br>
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Individual</a>
+    <li><a href="/teacher/reserve/singleReserves"><i></i>Reservas Individuales</a></li>
+    <li><a href="/teacher/singlePractice/add"><i></i>Reservar</a></li>
     {{else if student.fullname}}
     <li><a href="/student/practice/list"><i></i>Listar pr&aacute;cticas</a></li>
     <li><a href="/student/practice/book"><i></i>Reservar pr&aacute;cticas</a></li>
