@@ -217,6 +217,13 @@ router.get('/edit/:id', isLoggedIn, isAdmin, async (req, res) => {
     res.render('admin/editgDevice', { gDevice: gDevice[0], gtypes });
 });
 
+router.get('/practice/add/delete/:pid/:sd', isLoggedIn, isAdmin, async (req, res) => {
+    const { pid,sd } = req.params;
+    const r=await pool.query('DELETE FROM RESERVEBYDEVICE WHERE reserve=? and device=?',[pid,sd])
+    console.log(r);
+res.json('');
+});
+
 router.get('/edit/', isLoggedIn, isAdmin, async (req, res) => {
     const gtypes = await pool.query('SELECT * FROM GENERALTYPE');
 

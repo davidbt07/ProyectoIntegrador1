@@ -156,6 +156,15 @@
 
     }
 
+const deleteDevice = function (id) {
+        $.ajax({
+            url: '/admin/practice/add/delete/' + $('#id').val() + '/' + id,
+            success: function () {
+                $(`#${id}`).remove();
+            }
+        });
+    }
+
     function selecttype() {
         const typ = $("#types").val();
         $.ajax({

@@ -80,6 +80,12 @@ router.post('/reserve/list/edit/:id', isLoggedIn, isTeacher, async (req, res) =>
     res.redirect('/teacher/reserve/list');
 });
 
+router.get('/practice/add/delete/:pid/:sd', isLoggedIn, isTeacher, async (req, res) => {
+    const { pid,sd } = req.params;
+    const r=await pool.query('DELETE FROM RESERVEBYDEVICE WHERE reserve=? and device=?',[pid,sd])
+    console.log(r);
+res.json('');
+});
 router.get('/reserve/remove/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
     await pool.query('DELETE FROM RESERVEG WHERE id = ?', [id]);
@@ -300,7 +306,98 @@ router.get('/reserve/create/verify/:info', isLoggedIn, isTeacher, async (req, re
     res.json(bander);
 });
 
-router.get('/reserve/singlereserve/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
+router.get('/reserve/start/:id', isLoggedIn, isTeacher, async (req, res) => {
+    const { id } = req.params;
+    const today = new Date();
+    const reserve = await pool.query('SELECT * FROM RESERVEI WHERE id=?', [id]);
+    const reservei = reserve[0];
+
+
+    var reservehours = new Date();
+    const reserveDate = new Date(reservei.day);
+
+
+
+    if (today.getDay() == reserveDate.getDay()) {
+
+        const startHour = new Date("December 17, 1995 " + reservei.startHour);
+        const endHour = new Date("December 17, 1995 " + reservei.endHour);
+       
+
+        if (today.getHours() >= startHour.getHours() && today.getHours() <= endHour.getHours()) {
+               
+            if (today.getHours() == startHour.getHours() && today.getHours() == endHour.getHours()) {
+                if (today.getMinutes() > startHour.getMinutes() && today.getMinutes() < endHour.getMinutes()) {
+                    res.render('teacher/turnonoff')
+                }else {
+                    req.flash('danger', 'No es la hora de la reserva');
+                    res.redirect('/teacher/practice/list');
+                }
+
+            }else if(today.getHours()==startHour.getHours()){
+                if(today.getMinutes()>=startHour.getMinutes()){
+                    res.render('teacher/turnonoff')
+                }else {
+                    req.flash('danger', 'No es la hora de la reserva');
+                    res.redirect('/teacher/practice/list');
+                }
+            }else if(today.getHours()==endHour.getHours()){
+                if(today.getMinutes()<=endHour.getMinutes()){
+                    res.render('teacher/turnonoff')
+                }else {
+                    req.flash('danger', 'No es la hora de la reserva');
+                    res.redirect('/teacher/practice/list');
+                }
+            }else{
+                res.render('teacher/turnonoff')
+            }
+
+           
+
+        }else{
+            console.log('aqui');
+            req.flash('danger', 'No es la hora de la reserva');
+            res.redirect('/student/practice/list');
+        }
+    } else {
+        console.log('aqui');
+        req.flash('danger', 'No es la hora de la reserva');
+        res.redirect('/student/practice/list');
+    }
+
+
+});
+
+router.get('/turn/:type', isLoggedIn, isTeacher, async (req, res) => {
+    const { type } = req.params;
+      var err=false;
+    const ssh = new NodeSSH();
+    await ssh.connect({
+        host: '192.168.27.16',
+        username: 'pi',
+        password: 'raspberry'
+    }).catch(e => {
+        err=true;
+        req.flash('danger', 'ERROR DE CONEXIÓN');
+        console.log(e);
+        res.redirect('/teacher');
+    });
+    await ssh.execCommand('/home/pi/pin26-' + type, { cwd: '' }).then(function (result) {
+        console.log('STDOUT: ' + result.stdout)
+        console.log('STDERR: ' + result.stderr)
+    }).catch(e => {
+        req.flash('danger', 'ERROR DE CONEXIÓN');
+        err=true;
+        console.log(e);
+        res.redirect('/teacher');
+    });
+
+if(!err){
+    res.json('');
+}
+});
+
+router.get('/reserve/singleReserve/zoomin/:id', isLoggedIn, isTeacher, async (req, res) => {
     const { id } = req.params;
 const    devices = await pool.query('SELECT gd.name,gd.ports,gt.name as type,gd.id FROM RESERVEI ri INNER JOIN RESERVEBYDEVICE rbd ON ri.id=rbd.reserve INNER JOIN SPECIFICDEVICE sd ON sd.id=rbd.device INNER JOIN GENERALDEVICE gd ON gd.id=sd.type INNER JOIN GENERALTYPE gt ON gd.type=gt.id WHERE ri.id=?', [id]);
 
@@ -313,7 +410,7 @@ router.get('/gdetails/:id', isLoggedIn, isTeacher, async (req, res) => {
     const gDevice = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.id=?', [id]);
     const sDevices = await pool.query('SELECT * FROM (SELECT id as sid,state, type from SPECIFICDEVICE) sd JOIN GENERALDEVICE g WHERE sd.type=g.id and g.id=?', [id]);
 
-    res.render('student/gDeviceDetails', { gDevice: gDevice[0], sDevices });
+    res.render('teacher/gDeviceDetails', { gDevice: gDevice[0], sDevices });
 });
 
 //Ajax individuales
@@ -326,8 +423,8 @@ router.post('/singlePractice/bookDevice', isLoggedIn, isTeacher, async (req, res
     const day = reservei[0].day;
     const startHour = reservei[0].startHour;
     const endHour = reservei[0].endHour;
-    const r = await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and (startHour between ? and ?)  or (endHour between ? and ?))', [type, type, day, startHour, endHour, startHour, endHour, type, day, startHour, endHour, startHour, endHour])
-
+    const r = await pool.query('SELECT * FROM (SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type WHERE s.type=? AND s.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEG rg ON rb.reserve=rg.id where s.type=? and day=? and( ? between startHour and endHour or ? between startHour and endHour))) AS r WHERE r.id NOT IN(SELECT s.id FROM GENERALDEVICE g INNER JOIN SPECIFICDEVICE s ON g.id=s.type INNER JOIN RESERVEBYDEVICE rb ON rb.device=s.id INNER JOIN RESERVEI rg ON rb.reserve=rg.id where s.type=? and day=? and( ? between startHour and endHour or ? between startHour and endHour))', [type,type,day,startHour,endHour,type,day,startHour,endHour]);
+      
     if (r.length != 0) {
         const idr = r[0].id;
         const reservebd = {};

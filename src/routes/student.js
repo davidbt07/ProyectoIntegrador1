@@ -25,6 +25,13 @@ router.get('/practice/list/zoomin/:id', isLoggedIn, isStudent, async (req, res) 
     res.render('student/zoominPracticesList', { practice: practice[0], devices });
 });
 
+router.get('/practice/add/delete/:pid/:sd', isLoggedIn, isStudent, async (req, res) => {
+    const { pid,sd } = req.params;
+    const r=await pool.query('DELETE FROM RESERVEBYDEVICE WHERE reserve=? and device=?',[pid,sd])
+    console.log(r);
+res.json('');
+});
+
 
 router.get('/practice/book', isLoggedIn, isStudent, async (req, res) => {
 
@@ -113,7 +120,7 @@ router.get('/reserve/start/:id', isLoggedIn, isStudent, async (req, res) => {
                     res.redirect('/student/practice/list');
                 }
             }else{
-                res.render('admin/turnonoff')
+                res.render('student/turnonoff')
             }
 
            
