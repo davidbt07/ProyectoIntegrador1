@@ -183,4 +183,13 @@
 
     }
 
+    const deleteDevice = function (id) {
+        $.ajax({
+            url: '/student/practice/add/delete/' + $('#id').val() + '/' + id,
+            success: function () {
+                $(`#${id}`).remove();
+            }
+        });
+    }
+
 </script>
