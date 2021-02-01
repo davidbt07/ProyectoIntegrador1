@@ -29,8 +29,11 @@
     <li><a href="/teacher/reserve/singleReserves"><i></i>Reservas Individuales</a></li>
     <li><a href="/teacher/singlePractice/add"><i></i>Reservar</a></li>
     {{else if student.fullname}}
-    <li><a href="/student/practice/list"><i></i>Listar pr&aacute;cticas</a></li>
-    <li><a href="/student/practice/book"><i></i>Reservar pr&aacute;cticas</a></li>
+   <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Grupal</a>
+    <li><a href="/student/practice/list"><i></i>Lista pr&aacute;cticas</a></li>
+     <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Individual</a>
+      <li><a href="/student/singleReserves"><i></i>Reservas Individuales</a></li>
+    <li><a href="/student/practice/book"><i></i>Reservar dispositivos</a></li>
     <li><a href="/student/practice/editarReserva"><i></i>Editar reservas</a></li>
     {{/if}}
 

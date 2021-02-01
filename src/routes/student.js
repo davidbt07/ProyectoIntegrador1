@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { isLoggedIn, isStudent } = require('../lib/auth');
 const pool = require('../database');
-
+const { NodeSSH } = require('node-ssh')
 
 router.get('/', (req, res) => {
     res.send('Hi student');
@@ -10,8 +10,11 @@ router.get('/', (req, res) => {
 
 router.get('/practice/list', isLoggedIn, isStudent, async (req, res) => {
     const practices = await pool.query('SELECT r.id, r.id_practice, r.course, r.day, r.startHour, r.endHour, p.name, p.pods FROM RESERVEG r INNER JOIN PRACTICE p ON r.id_practice = p.id;');
+    res.render('student/practicesList', { practices });
+});
+router.get('/singleReserves', isLoggedIn, isStudent, async (req, res) => {
     const practicesi= await pool.query('SELECT * FROM RESERVEI WHERE USER=?', [req.student.id]);
-    res.render('student/practicesList', { practices,practicesi });
+    res.render('student/practicesListi', {practicesi });
 });
 
 router.get('/practice/list/zoomin/:id', isLoggedIn, isStudent, async (req, res) => {
@@ -36,6 +39,97 @@ router.get('/practice/gdevicesfortype/:typ', isLoggedIn, isStudent, async (req, 
     const { typ } = req.params;
     const gDevices = await pool.query('SELECT * FROM (SELECT name as gtname,id as gtid from GENERALTYPE) gt JOIN GENERALDEVICE g WHERE gt.gtid=g.type and g.type=?', [typ]);
     res.json(gDevices);
+});
+
+router.get('/turn/:type', isLoggedIn, isStudent, async (req, res) => {
+    const { type } = req.params;
+      var err=false;
+    const ssh = new NodeSSH();
+    await ssh.connect({
+        host: '192.168.27.16',
+        username: 'pi',
+        password: 'raspberry'
+    }).catch(e => {
+        err=true;
+        req.flash('danger', 'ERROR DE CONEXIÓN');
+        console.log(e);
+        res.redirect('/student');
+    });
+    await ssh.execCommand('/home/pi/pin26-' + type, { cwd: '' }).then(function (result) {
+        console.log('STDOUT: ' + result.stdout)
+        console.log('STDERR: ' + result.stderr)
+    }).catch(e => {
+        req.flash('danger', 'ERROR DE CONEXIÓN');
+        err=true;
+        console.log(e);
+        res.redirect('/student');
+    });
+
+if(!err){
+    res.json('');
+}
+});
+
+router.get('/reserve/start/:id', isLoggedIn, isStudent, async (req, res) => {
+    const { id } = req.params;
+    const today = new Date();
+    const reserve = await pool.query('SELECT * FROM RESERVEI WHERE id=?', [id]);
+    const reservei = reserve[0];
+
+
+    var reservehours = new Date();
+    const reserveDate = new Date(reservei.day);
+
+
+
+    if (today.getDay() == reserveDate.getDay()) {
+
+        const startHour = new Date("December 17, 1995 " + reservei.startHour);
+        const endHour = new Date("December 17, 1995 " + reservei.endHour);
+       
+
+        if (today.getHours() >= startHour.getHours() && today.getHours() <= endHour.getHours()) {
+               
+            if (today.getHours() == startHour.getHours() && today.getHours() == endHour.getHours()) {
+                if (today.getMinutes() > startHour.getMinutes() && today.getMinutes() < endHour.getMinutes()) {
+                    res.render('student/turnonoff')
+                }else {
+                    req.flash('danger', 'No es la hora de la reserva');
+                    res.redirect('/student/practice/list');
+                }
+
+            }else if(today.getHours()==startHour.getHours()){
+                if(today.getMinutes()>=startHour.getMinutes()){
+                    res.render('student/turnonoff')
+                }else {
+                    req.flash('danger', 'No es la hora de la reserva');
+                    res.redirect('/student/practice/list');
+                }
+            }else if(today.getHours()==endHour.getHours()){
+                if(today.getMinutes()<=endHour.getMinutes()){
+                    res.render('student/turnonoff')
+                }else {
+                    req.flash('danger', 'No es la hora de la reserva');
+                    res.redirect('/student/practice/list');
+                }
+            }else{
+                res.render('admin/turnonoff')
+            }
+
+           
+
+        }else{
+            console.log('aqui');
+            req.flash('danger', 'No es la hora de la reserva');
+            res.redirect('/student/practice/list');
+        }
+    } else {
+        console.log('aqui');
+        req.flash('danger', 'No es la hora de la reserva');
+        res.redirect('/student/practice/list');
+    }
+
+
 });
 
 router.post('/practice/add', isLoggedIn, isStudent, async (req, res) => {
