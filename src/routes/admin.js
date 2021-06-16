@@ -15,23 +15,70 @@ router.get('/add', isLoggedIn, isAdmin, async (req, res) => {
     res.render('admin/addg', { gtypes });
 });
 
-router.get('/ssh', async (req, res) => {
+
+
+router.get('/create-vm/:stan/:vlan', async (req, res) => {
+    const ssh = new NodeSSH();
+    const {stan,vlan}=req.params;
+
+    console.log(stan);
+    await ssh.connect({
+        host: '192.168.30.49',
+        username: 'telematica',
+        password: 'root'
+    });
+    await ssh.execCommand('/scripts/create-vm.sh '+stan+' '+vlan, { cwd: '' }).then(function (result) {
+        console.log('STDOUT: ' + result.stdout)
+        console.log('STDERR: ' + result.stderr)
+            res.redirect('localhost:8080/'+stan);
+   
+       
+    })
+});
+
+
+router.get('/ssh2', async (req, res) => {
     const ssh = new NodeSSH();
     await ssh.connect({
-        host: '192.168.27.64',
-        username: 'pi',
-        password: 'raspberry'
+        host: '192.168.30.49',
+        username: 'telematica',
+        password: 'root'
     });
-    await ssh.execCommand('/home/pi/pin26-on', { cwd: '' }).then(function (result) {
+    await ssh.execCommand('/scripts/run-vm.sh 12', { cwd: '' }).then(function (result) {
         console.log('STDOUT: ' + result.stdout)
         console.log('STDERR: ' + result.stderr)
     })
 });
 
+router.get('/ssh3', async (req, res) => {
+    const ssh = new NodeSSH();
+    await ssh.connect({
+        host: '192.168.30.49',
+        username: 'telematica',
+        password: 'root'
+    });
+    await ssh.execCommand('/scripts/delete-vm.sh 13', { cwd: '' }).then(function (result) {
+        console.log('STDOUT: ' + result.stdout)
+        console.log('STDERR: ' + result.stderr)
+    })
+});
+
+router.get('/ssh', async (req, res) => {
+    const ssh = new NodeSSH();
+    await ssh.connect({
+        host: '192.168.30.49',
+        username: 'telematica',
+        password: 'root'
+    });
+    await ssh.execCommand('/scripts/create-vm.sh 13 10', { cwd: '' }).then(function (result) {
+  
+res.redirect("http://192.168.30.49:8080/")
+
+    })
+});
+
 
 router.post('/add', isLoggedIn, isAdmin, async (req, res) => {
-
-
 
     const { name, type, description, amount, ports } = req.body;
     const newGDevice = { name, type, description, amount, ports };
@@ -310,6 +357,11 @@ router.post('/editss/:id', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/selectdevices', isLoggedIn, async (req, res) => {
 
     res.render('admin/turnonoff.hbs');
+});
+
+router.get('/xterm',  (req, res) => {
+
+    res.render('admin/xterm.hbs');
 });
 
 router.post('/reserve/create', isLoggedIn, async (req, res) => {
