@@ -16,6 +16,22 @@ router.get('/add', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 
+router.get('/open-router/:id', async (req, res) => {
+    const ssh = new NodeSSH();
+    const {id}=req.params;
+
+    console.log(stan);
+    await ssh.connect({
+        host: '192.168.30.49',
+        username: 'telematica',
+        password: 'root'
+    });
+    await ssh.execCommand('/scripts/create-vm.sh '+stan+' '+vlan, { cwd: '' }).then(function (result) {
+        console.log('STDOUT: ' + result.stdout)
+        console.log('STDERR: ' + result.stderr)
+        res.redirect('http://192.168.30.49:8080/'+stan);
+    })
+});
 
 router.get('/create-vm/:stan/:vlan', async (req, res) => {
     const ssh = new NodeSSH();
@@ -30,12 +46,26 @@ router.get('/create-vm/:stan/:vlan', async (req, res) => {
     await ssh.execCommand('/scripts/create-vm.sh '+stan+' '+vlan, { cwd: '' }).then(function (result) {
         console.log('STDOUT: ' + result.stdout)
         console.log('STDERR: ' + result.stderr)
-            res.redirect('localhost:8080/'+stan);
-   
-       
+        res.redirect('http://192.168.30.49:8080/'+stan);
     })
 });
 
+router.get('/delete-vm/:stani/:stanf', async (req, res) => {
+    const ssh = new NodeSSH();
+    const {stani,stanf}=req.params;
+
+ console.log(stani,stanf)
+    await ssh.connect({
+        host: '192.168.30.49',
+        username: 'telematica',
+        password: 'root'
+    });
+    await ssh.execCommand('/scripts/delete-vms.sh '+stani+' '+stanf, { cwd: '' }).then(function (result) {
+        console.log('STDOUT: ' + result.stdout)
+        console.log('STDERR: ' + result.stderr)
+        res.redirect('http://localhost:4000');
+    })
+});
 
 router.get('/ssh2', async (req, res) => {
     const ssh = new NodeSSH();
@@ -85,9 +115,27 @@ router.post('/add', isLoggedIn, isAdmin, async (req, res) => {
     const a = await pool.query('INSERT INTO GENERALDEVICE SET?', [newGDevice]);
     id = a.insertId;
     const d = 'DISPONIBLE';
-
+    const ssh = new NodeSSH();
+    await ssh.connect({
+        host: '192.168.30.49',
+        username: 'telematica',
+        password: 'root'
+    });
+    await ssh.execCommand('/scripts/create-vms.sh '+0+' '+amount+ " "+10, { cwd: '' }).then(function (result) {
+        console.log('STDOUT: ' + result.stdout)
+        console.log('STDERR: ' + result.stderr)
+ 
+    });
+  
     for (var i = 0; i < amount; i++) {
-        await pool.query('INSERT INTO SPECIFICDEVICE(state, type)VALUES(?, ?)', [d, id]);
+      const result= await pool.query('INSERT INTO SPECIFICDEVICE(state, type)VALUES(?, ?)', [d, id]);
+       await ssh.execCommand('/scripts/create-vm.sh '+result.insertId+" "+10, { cwd: '' }).then(function (result) {
+        console.log('STDOUT: ' + result.stdout)
+        console.log('STDERR: ' + result.stderr)
+ 
+    });
+  
+      
     }
 
     req.flash('success', 'DISPOSITIVO GUARDADO EXITOSAMENTE');
@@ -124,13 +172,14 @@ router.get('/reserve/list/zoomin/:id', isLoggedIn, isAdmin, async (req, res) => 
 router.get('/reserve/start/:id', isLoggedIn, isAdmin, async (req, res) => {
     const { id } = req.params;
     const today = new Date();
-    const reserve = await pool.query('SELECT * FROM RESERVEI WHERE id=?', [id]);
+    const reserve = await pool.query('SELECT * FROM RESERVEI ri JOIN RESERVEBYDEVICE rd ON ri.id=rd.reserve WHERE id=? ', [id]);
     const reservei = reserve[0];
+ 
 
 
     var reservehours = new Date();
     const reserveDate = new Date(reservei.day);
-
+    var isOk=false;
 
 
     if (today.getDay() == reserveDate.getDay()) {
@@ -143,7 +192,7 @@ router.get('/reserve/start/:id', isLoggedIn, isAdmin, async (req, res) => {
                
             if (today.getHours() == startHour.getHours() && today.getHours() == endHour.getHours()) {
                 if (today.getMinutes() > startHour.getMinutes() && today.getMinutes() < endHour.getMinutes()) {
-                    res.render('admin/turnonoff')
+                isOk=true;
                 }else {
                     req.flash('danger', 'No es la hora de la reserva');
                     res.redirect('/admin/practice/reservelist');
@@ -151,20 +200,24 @@ router.get('/reserve/start/:id', isLoggedIn, isAdmin, async (req, res) => {
 
             }else if(today.getHours()==startHour.getHours()){
                 if(today.getMinutes()>=startHour.getMinutes()){
-                    res.render('admin/turnonoff')
+                    isOk=true;
                 }else {
                     req.flash('danger', 'No es la hora de la reserva');
                     res.redirect('/admin/practice/reservelist');
                 }
             }else if(today.getHours()==endHour.getHours()){
                 if(today.getMinutes()<=endHour.getMinutes()){
-                    res.render('admin/turnonoff')
+                    isOk=true;
                 }else {
                     req.flash('danger', 'No es la hora de la reserva');
                     res.redirect('/admin/practice/reservelist');
                 }
             }else{
-                res.render('admin/turnonoff')
+                isOk=true;
+            }
+
+            if(isOk){
+                res.redirect('http://192.168.30.49:8080/'+reservei.device);
             }
 
            
