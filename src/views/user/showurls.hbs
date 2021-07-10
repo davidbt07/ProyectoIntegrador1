@@ -1,0 +1,26 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <div class="text-center">
+                <div class="presentation">
+
+                    </br>
+                    <h5>ENLACE A DISPOSITIVOS</h5>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="container">
+    <div class="d-flex justify-content-center">
+
+        {{#each urls}}
+
+
+        <a href={{url}} type="button" class="btn btn-light m-2">
+            Iniciar {{name}} 
+        </a>
+        {{/each}}
+    </div>
+</div>

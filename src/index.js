@@ -82,6 +82,7 @@ app.use((req, res, next) => {
 app.use(require('./routes'));
 
 app.use('/admin', require('./routes/admin'));
+app.use('/user', require('./routes/anyUser'));
 app.use('/teacher', require('./routes/teacher'));
 app.use('/student', require('./routes/student'));
 app.use(require('./routes/authentication'));

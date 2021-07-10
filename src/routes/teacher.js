@@ -126,6 +126,7 @@ router.get('/practice/list', isLoggedIn, isTeacher, async (req, res) => {
         }
         console.log(practice, practices[practice]);
     });
+  
     res.render('teacher/practicesList',{ practices });
 });
 
